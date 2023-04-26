@@ -1,0 +1,11 @@
+POST http://localhost:8080/api/v1/server
+Content-Type: application/json
+Authorization: Bearer ${AccessToken}
+
+{
+  "host" : "http://localhost",
+  "path" : "/path",
+  "method" : "GET",
+  "interval" : 30,
+  "active" : true
+}
