@@ -1,0 +1,17 @@
+= Health-check
+:doctype: book
+:icons: font
+:source-highlighter: highlightjs
+:toc: left
+:toclevels: 2
+:sectlinks:
+
+= 서버 등록
+
+=== 요청
+include::{snippets}/server/http-request.adoc[]
+include::{snippets}/server/request-fields.adoc[]
+
+=== 응답
+include::{snippets}/server/http-response.adoc[]
+include::{snippets}/server/response-fields.adoc[]

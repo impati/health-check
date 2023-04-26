@@ -8,27 +8,34 @@ import com.example.healthcheck.service.server.ServerRegister;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import org.junit.jupiter.api.DisplayName;
 import org.junit.jupiter.api.Test;
+import org.junit.jupiter.api.extension.ExtendWith;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.boot.test.autoconfigure.restdocs.AutoConfigureRestDocs;
 import org.springframework.boot.test.autoconfigure.web.servlet.WebMvcTest;
 import org.springframework.boot.test.mock.mockito.MockBean;
 import org.springframework.http.MediaType;
+import org.springframework.restdocs.RestDocumentationExtension;
 import org.springframework.test.web.servlet.MockMvc;
-import org.springframework.test.web.servlet.result.MockMvcResultMatchers;
 
 import static org.mockito.BDDMockito.given;
 import static org.mockito.BDDMockito.willDoNothing;
-import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.post;
-import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.jsonPath;
-import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.status;
+import static org.springframework.restdocs.mockmvc.MockMvcRestDocumentation.document;
+import static org.springframework.restdocs.mockmvc.RestDocumentationRequestBuilders.post;
+import static org.springframework.restdocs.payload.PayloadDocumentation.*;
+import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.*;
 
 @WebMvcTest(ServerController.class)
+@AutoConfigureRestDocs(uriScheme = "https",uriHost = "api.health-check.com",uriPort = 443)
+@ExtendWith(RestDocumentationExtension.class)
 class ServerControllerTest {
 
     private final ObjectMapper objectMapper = new ObjectMapper();
+
     @MockBean
     private ServerRegister serverRegister;
     @MockBean
     private BringCustomer bringCustomer;
+
     @Autowired
     private MockMvc mockMvc;
 
@@ -48,16 +55,24 @@ class ServerControllerTest {
                         .content(objectMapper.writeValueAsBytes(request))
                         .header("Authorization","Bearer " + token))
                 .andExpect(status().isOk())
-                .andExpect(MockMvcResultMatchers.handler().methodName("register"))
-                .andExpect(jsonPath("$.resultCode").value("SUCCESS"));
+                .andExpect(handler().methodName("register"))
+                .andExpect(jsonPath("$.resultCode").value("SUCCESS"))
+                .andDo(document("server",
+                        requestFields(
+                                fieldWithPath("host").description("서버 호스트"),
+                                fieldWithPath("path").description("서버 앤드포인트"),
+                                fieldWithPath("method").description("HTTP 메서드"),
+                                fieldWithPath("interval").description("헬스 체크 요청 간격"),
+                                fieldWithPath("active").description("헬스 체크 활성화 여부")),
+                        responseFields(fieldWithPath("resultCode").description("상태 코드"))));
     }
 
     private ServerRegistrationV1Request create(){
-        return new ServerRegistrationV1Request("host","path", EndPointHttpMethod.GET,30,true);
+        return new ServerRegistrationV1Request("https://service-hub.org","/service/search", EndPointHttpMethod.GET,30,true);
     }
 
     private String stubToken() {
-        return "token";
+        return "${AccessToken}";
     }
 
     private Customer stubCustomer(){
