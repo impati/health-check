@@ -6,6 +6,10 @@ import com.example.healthcheck.service.server.dto.ServerRegistrationDto;
 import lombok.AllArgsConstructor;
 import lombok.Getter;
 import lombok.NoArgsConstructor;
+import org.springframework.util.LinkedMultiValueMap;
+import org.springframework.util.MultiValueMap;
+
+import java.util.List;
 
 @Getter
 @AllArgsConstructor
@@ -14,16 +18,26 @@ public class ServerRegistrationV1Request{
     private String host;
     private String path;
     private EndPointHttpMethod method;
+    private List<QueryParamRequest> queryParams;
     private Integer interval;
     private boolean active;
 
     public ServerRegistrationDto convert(){
         return ServerRegistrationDto.builder()
-                .active(active)
                 .host(host)
                 .path(path)
-                .interval(interval)
                 .method(method)
+                .queryParams(toMultiValueMap())
+                .interval(interval)
+                .active(active)
                 .build();
+    }
+
+    private MultiValueMap<String,String> toMultiValueMap(){
+        MultiValueMap<String,String> params = new LinkedMultiValueMap<>();
+        for(var element : queryParams){
+            params.add(element.getKey(), element.getValue());
+        }
+        return params;
     }
 }
