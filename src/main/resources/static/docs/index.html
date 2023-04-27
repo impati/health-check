@@ -465,10 +465,10 @@ body.book #toc,body.book #preamble,body.book h1.sect0,body.book .sect1>h2{page-b
 <pre class="highlightjs highlight nowrap"><code class="language-http hljs" data-lang="http">POST /api/v1/server HTTP/1.1
 Content-Type: application/json;charset=UTF-8
 Authorization: Bearer ${AccessToken}
-Content-Length: 102
+Content-Length: 148
 Host: api.health-check.com
 
-{"host":"https://service-hub.org","path":"/service/search","method":"GET","interval":30,"active":true}</code></pre>
+{"host":"https://service-hub.org","path":"/service/search","method":"GET","queryParams":[{"key":"key","value":"value"}],"interval":30,"active":true}</code></pre>
 </div>
 </div>
 <table class="tableblock frame-all grid-all stretch">
@@ -499,6 +499,21 @@ Host: api.health-check.com
 <td class="tableblock halign-left valign-top"><p class="tableblock"><code>method</code></p></td>
 <td class="tableblock halign-left valign-top"><p class="tableblock"><code>String</code></p></td>
 <td class="tableblock halign-left valign-top"><p class="tableblock">HTTP 메서드</p></td>
+</tr>
+<tr>
+<td class="tableblock halign-left valign-top"><p class="tableblock"><code>queryParams</code></p></td>
+<td class="tableblock halign-left valign-top"><p class="tableblock"><code>class java.util.ImmutableCollections$List12</code></p></td>
+<td class="tableblock halign-left valign-top"><p class="tableblock">HTTP 메서드</p></td>
+</tr>
+<tr>
+<td class="tableblock halign-left valign-top"><p class="tableblock"><code>queryParams[].key</code></p></td>
+<td class="tableblock halign-left valign-top"><p class="tableblock"><code>String</code></p></td>
+<td class="tableblock halign-left valign-top"><p class="tableblock">쿼리 파라미터 key</p></td>
+</tr>
+<tr>
+<td class="tableblock halign-left valign-top"><p class="tableblock"><code>queryParams[].value</code></p></td>
+<td class="tableblock halign-left valign-top"><p class="tableblock"><code>String</code></p></td>
+<td class="tableblock halign-left valign-top"><p class="tableblock">쿼리 파라미터 value</p></td>
 </tr>
 <tr>
 <td class="tableblock halign-left valign-top"><p class="tableblock"><code>interval</code></p></td>
