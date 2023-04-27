@@ -1,5 +1,6 @@
 package com.example.healthcheck.api.v1.controller;
 
+import com.example.healthcheck.api.v1.request.QueryParamRequest;
 import com.example.healthcheck.api.v1.request.ServerRegistrationV1Request;
 import com.example.healthcheck.entity.server.EndPointHttpMethod;
 import com.example.healthcheck.security.BringCustomer;
@@ -16,6 +17,8 @@ import org.springframework.boot.test.mock.mockito.MockBean;
 import org.springframework.http.MediaType;
 import org.springframework.restdocs.RestDocumentationExtension;
 import org.springframework.test.web.servlet.MockMvc;
+
+import java.util.List;
 
 import static org.mockito.BDDMockito.given;
 import static org.mockito.BDDMockito.willDoNothing;
@@ -62,15 +65,24 @@ class ServerControllerTest {
                                 fieldWithPath("host").description("서버 호스트"),
                                 fieldWithPath("path").description("서버 앤드포인트"),
                                 fieldWithPath("method").description("HTTP 메서드"),
+                                fieldWithPath("queryParams[].key").description("쿼리 파라미터 key"),
+                                fieldWithPath("queryParams[].value").description("쿼리 파라미터 value"),
                                 fieldWithPath("interval").description("헬스 체크 요청 간격"),
                                 fieldWithPath("active").description("헬스 체크 활성화 여부")),
                         responseFields(fieldWithPath("resultCode").description("상태 코드"))));
     }
 
     private ServerRegistrationV1Request create(){
-        return new ServerRegistrationV1Request("https://service-hub.org","/service/search", EndPointHttpMethod.GET,30,true);
+        return new ServerRegistrationV1Request("https://service-hub.org","/service/search",
+                EndPointHttpMethod.GET,
+                queryParams(),
+                30,
+                true);
     }
 
+    private List<QueryParamRequest> queryParams(){
+        return List.of(new QueryParamRequest("key","value"));
+    }
     private String stubToken() {
         return "${AccessToken}";
     }
