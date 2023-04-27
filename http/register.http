@@ -6,6 +6,11 @@ Authorization: Bearer ${AccessToken}
   "host" : "http://localhost",
   "path" : "/path",
   "method" : "GET",
+  "queryParams" : [
+    { "key" : "clientId" ,
+      "value": "${clientId}"
+    }
+  ],
   "interval" : 30,
   "active" : true
 }
