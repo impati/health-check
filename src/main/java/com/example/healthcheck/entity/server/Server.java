@@ -6,8 +6,10 @@ import lombok.AccessLevel;
 import lombok.Builder;
 import lombok.Getter;
 import lombok.NoArgsConstructor;
-import org.springframework.http.HttpMethod;
+import org.springframework.util.MultiValueMap;
 
+import java.util.ArrayList;
+import java.util.List;
 import java.util.Objects;
 
 @Table(name = "server_table")
@@ -25,22 +27,51 @@ public class Server extends BaseTimeEntity {
     @Column(nullable = false)
     private String host;
     private String path;
+
     @Column(nullable = false)
     @Enumerated(value = EnumType.STRING)
     private EndPointHttpMethod method;
+
     @Column(name = "interval_time" , nullable = false)
     private Integer interval;
+
     @Column(nullable = false)
     private boolean active;
 
+    @OneToMany(mappedBy = "server",cascade = CascadeType.ALL)
+    private List<QueryParam> queryParams = new ArrayList<>();
+
     @Builder
-    public Server(Long customerId, String host, String path, EndPointHttpMethod method, Integer interval, boolean active) {
+    public Server(Long customerId,
+                  String host,
+                  String path,
+                  EndPointHttpMethod method,
+                  MultiValueMap<String , String> params,
+                  Integer interval,
+                  boolean active) {
         this.customerId = customerId;
         this.host = host;
         this.path = path;
         this.method = method;
         this.interval = interval;
         this.active = active;
+        saveQueryParams(params);
+    }
+
+    private void saveQueryParams(MultiValueMap<String,String> params){
+        for(var key : params.keySet()){
+            saveQueryParams(key,params.get(key));
+        }
+    }
+
+    private void saveQueryParams(String key,List<String> values){
+        for(var value :values) {
+            queryParams.add(QueryParam.builder()
+                    .key(key)
+                    .value(value)
+                    .server(this)
+                    .build());
+        }
     }
 
     @Override

@@ -1,7 +1,7 @@
 package com.example.healthcheck.service.server;
 
 import com.example.healthcheck.entity.server.Server;
-import com.example.healthcheck.repository.ServerRepository;
+import com.example.healthcheck.repository.server.ServerRepository;
 import com.example.healthcheck.service.server.dto.ServerRegistrationDto;
 import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Service;
@@ -26,6 +26,7 @@ public class ServerRegister {
                 .host(dto.host())
                 .path(dto.path())
                 .active(dto.active())
+                .params(dto.queryParams())
                 .build();
     }
 }
