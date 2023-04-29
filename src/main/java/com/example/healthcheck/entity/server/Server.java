@@ -6,7 +6,9 @@ import lombok.AccessLevel;
 import lombok.Builder;
 import lombok.Getter;
 import lombok.NoArgsConstructor;
+import org.springframework.util.LinkedMultiValueMap;
 import org.springframework.util.MultiValueMap;
+import org.springframework.web.util.UriComponentsBuilder;
 
 import java.util.ArrayList;
 import java.util.List;
@@ -58,7 +60,16 @@ public class Server extends BaseTimeEntity {
         saveQueryParams(params);
     }
 
+    public String getUrl(){
+        return UriComponentsBuilder.fromHttpUrl(host)
+                .path(path)
+                .queryParams(toPrams())
+                .build()
+                .toString();
+    }
+
     private void saveQueryParams(MultiValueMap<String,String> params){
+        if(params == null) return;
         for(var key : params.keySet()){
             saveQueryParams(key,params.get(key));
         }
@@ -72,6 +83,14 @@ public class Server extends BaseTimeEntity {
                     .server(this)
                     .build());
         }
+    }
+
+    private MultiValueMap<String,String> toPrams(){
+        MultiValueMap<String,String> multiValueMap = new LinkedMultiValueMap<>();
+        for(var element : queryParams){
+            multiValueMap.add(element.getKey(),element.getValue());
+        }
+        return multiValueMap;
     }
 
     @Override
