@@ -27,6 +27,9 @@ public class Server extends BaseTimeEntity {
     private Long customerId;
 
     @Column(nullable = false)
+    private String serverName;
+
+    @Column(nullable = false)
     private String host;
     private String path;
 
@@ -44,13 +47,15 @@ public class Server extends BaseTimeEntity {
     private List<QueryParam> queryParams = new ArrayList<>();
 
     @Builder
-    public Server(Long customerId,
+    public Server(String serverName,
+                  Long customerId ,
                   String host,
                   String path,
                   EndPointHttpMethod method,
                   MultiValueMap<String , String> params,
                   Integer interval,
                   boolean active) {
+        this.serverName = serverName;
         this.customerId = customerId;
         this.host = host;
         this.path = path;
@@ -58,6 +63,10 @@ public class Server extends BaseTimeEntity {
         this.interval = interval;
         this.active = active;
         saveQueryParams(params);
+    }
+
+    public void deactivate(){
+        this.active = false;
     }
 
     public String getUrl(){
@@ -92,6 +101,9 @@ public class Server extends BaseTimeEntity {
         }
         return multiValueMap;
     }
+
+
+
 
     @Override
     public boolean equals(Object o) {

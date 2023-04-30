@@ -29,6 +29,7 @@ class DefaultEntityFinderTest {
 
     private Server stubServer(){
         return Server.builder()
+                .serverName("테스트 서버")
                 .customerId(1L)
                 .method(EndPointHttpMethod.GET)
                 .interval(30)

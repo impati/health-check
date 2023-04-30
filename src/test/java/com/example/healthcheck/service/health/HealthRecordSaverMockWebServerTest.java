@@ -6,6 +6,7 @@ import com.example.healthcheck.entity.server.EndPointHttpMethod;
 import com.example.healthcheck.entity.server.Server;
 import com.example.healthcheck.repository.health.HealthRecordRepository;
 import com.example.healthcheck.repository.server.ServerRepository;
+import com.example.healthcheck.steps.ServerSteps;
 import okhttp3.mockwebserver.MockResponse;
 import okhttp3.mockwebserver.MockWebServer;
 import org.junit.jupiter.api.AfterEach;
@@ -35,8 +36,11 @@ class HealthRecordSaverMockWebServerTest {
     @Autowired
     private HealthRecordRepository healthRecordRepository;
 
+    private ServerSteps serverSteps;
+
     @BeforeEach
     void setup() throws IOException {
+        serverSteps = new ServerSteps(serverRepository);
         mockWebServer = new MockWebServer();
         mockWebServer.start();
     }
@@ -53,7 +57,7 @@ class HealthRecordSaverMockWebServerTest {
 
         String baseUrl = mockWebServer.url("/").toString();
 
-        Server server = serverRepository.save(stubServer(baseUrl));
+        Server server = serverRepository.save(serverSteps.createServer(baseUrl));
 
         // when
 
@@ -86,7 +90,7 @@ class HealthRecordSaverMockWebServerTest {
 
         String baseUrl = mockWebServer.url("/").toString();
 
-        Server server = serverRepository.save(stubServer(baseUrl));
+        Server server = serverRepository.save(serverSteps.createServer(baseUrl));
 
         // when
 
@@ -112,13 +116,4 @@ class HealthRecordSaverMockWebServerTest {
         assertThat(healthRecord.getHealthStatus()).isEqualTo(HealthStatus.FAIL);
     }
 
-    private Server stubServer(String host){
-        return Server.builder()
-                .host(host)
-                .customerId(1L)
-                .active(true)
-                .interval(30)
-                .method(EndPointHttpMethod.GET)
-                .build();
-    }
 }

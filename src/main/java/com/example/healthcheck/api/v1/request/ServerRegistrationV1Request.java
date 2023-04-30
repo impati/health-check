@@ -15,6 +15,7 @@ import java.util.List;
 @AllArgsConstructor
 @NoArgsConstructor
 public class ServerRegistrationV1Request{
+    private String serverName;
     private String host;
     private String path;
     private EndPointHttpMethod method;
@@ -24,6 +25,7 @@ public class ServerRegistrationV1Request{
 
     public ServerRegistrationDto convert(){
         return ServerRegistrationDto.builder()
+                .serverName(serverName)
                 .host(host)
                 .path(path)
                 .method(method)

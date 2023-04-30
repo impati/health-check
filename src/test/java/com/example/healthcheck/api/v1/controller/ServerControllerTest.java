@@ -5,6 +5,7 @@ import com.example.healthcheck.api.v1.request.ServerRegistrationV1Request;
 import com.example.healthcheck.entity.server.EndPointHttpMethod;
 import com.example.healthcheck.security.BringCustomer;
 import com.example.healthcheck.security.Customer;
+import com.example.healthcheck.service.server.ServerDeActivator;
 import com.example.healthcheck.service.server.ServerRegister;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import org.junit.jupiter.api.DisplayName;
@@ -38,7 +39,8 @@ class ServerControllerTest {
     private ServerRegister serverRegister;
     @MockBean
     private BringCustomer bringCustomer;
-
+    @MockBean
+    private ServerDeActivator serverDeActivator;
     @Autowired
     private MockMvc mockMvc;
 
@@ -62,6 +64,7 @@ class ServerControllerTest {
                 .andExpect(jsonPath("$.resultCode").value("SUCCESS"))
                 .andDo(document("server",
                         requestFields(
+                                fieldWithPath("serverName").description("서버 이름"),
                                 fieldWithPath("host").description("서버 호스트"),
                                 fieldWithPath("path").description("서버 앤드포인트"),
                                 fieldWithPath("method").description("HTTP 메서드"),
@@ -73,7 +76,7 @@ class ServerControllerTest {
     }
 
     private ServerRegistrationV1Request create(){
-        return new ServerRegistrationV1Request("https://service-hub.org","/service/search",
+        return new ServerRegistrationV1Request("서비스 허브","https://service-hub.org","/service/search",
                 EndPointHttpMethod.GET,
                 queryParams(),
                 30,

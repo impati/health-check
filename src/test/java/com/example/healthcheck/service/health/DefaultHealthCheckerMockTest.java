@@ -109,6 +109,7 @@ class DefaultHealthCheckerMockTest {
 
     private Server stubServer(String host){
         return Server.builder()
+                .serverName("테스트 서버")
                 .host(host)
                 .customerId(1L)
                 .active(true)
