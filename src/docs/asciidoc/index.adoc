@@ -15,3 +15,17 @@ include::{snippets}/server/request-fields.adoc[]
 === 응답
 include::{snippets}/server/http-response.adoc[]
 include::{snippets}/server/response-fields.adoc[]
+
+
+== 헬스 체크
+
+=== 요청
+include::{snippets}/check/http-request.adoc[]
+include::{snippets}/check/path-parameters.adoc[]
+
+=== 응답
+include::{snippets}/check/http-response.adoc[]
+include::{snippets}/check/response-fields.adoc[]
+
+
+
