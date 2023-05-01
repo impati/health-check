@@ -17,7 +17,7 @@ include::{snippets}/server/http-response.adoc[]
 include::{snippets}/server/response-fields.adoc[]
 
 
-== 헬스 체크
+= 헬스 체크
 
 === 요청
 include::{snippets}/check/http-request.adoc[]
@@ -28,4 +28,13 @@ include::{snippets}/check/http-response.adoc[]
 include::{snippets}/check/response-fields.adoc[]
 
 
+= 서버 비활성화
+
+=== 요청
+include::{snippets}/disable/http-request.adoc[]
+include::{snippets}/disable/request-fields.adoc[]
+
+=== 응답
+include::{snippets}/disable/http-response.adoc[]
+include::{snippets}/disable/response-fields.adoc[]
 

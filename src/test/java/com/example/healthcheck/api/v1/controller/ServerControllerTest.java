@@ -1,10 +1,12 @@
 package com.example.healthcheck.api.v1.controller;
 
 import com.example.healthcheck.api.v1.request.QueryParamRequest;
+import com.example.healthcheck.api.v1.request.ServerDisableV1Request;
 import com.example.healthcheck.api.v1.request.ServerRegistrationV1Request;
 import com.example.healthcheck.entity.server.EndPointHttpMethod;
 import com.example.healthcheck.security.BringCustomer;
 import com.example.healthcheck.security.Customer;
+import com.example.healthcheck.service.server.ServerDeActivator;
 import com.example.healthcheck.service.server.ServerRegister;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import org.junit.jupiter.api.DisplayName;
@@ -38,17 +40,18 @@ class ServerControllerTest {
     private ServerRegister serverRegister;
     @MockBean
     private BringCustomer bringCustomer;
-
+    @MockBean
+    private ServerDeActivator serverDeActivator;
     @Autowired
     private MockMvc mockMvc;
 
     @Test
     @DisplayName("[POST] [/api/v1/server] 서버 등록")
-    public void given_when_then() throws Exception{
+    public void registerTest() throws Exception{
 
         String token = stubToken();
         Customer customer = stubCustomer();
-        ServerRegistrationV1Request request = create();
+        ServerRegistrationV1Request request = createServerRegistrationV1Request();
 
         given(bringCustomer.bring(token)).willReturn(customer);
         willDoNothing().given(serverRegister).register(customer.getId(),request.convert());
@@ -62,6 +65,7 @@ class ServerControllerTest {
                 .andExpect(jsonPath("$.resultCode").value("SUCCESS"))
                 .andDo(document("server",
                         requestFields(
+                                fieldWithPath("serverName").description("서버 이름"),
                                 fieldWithPath("host").description("서버 호스트"),
                                 fieldWithPath("path").description("서버 앤드포인트"),
                                 fieldWithPath("method").description("HTTP 메서드"),
@@ -72,8 +76,37 @@ class ServerControllerTest {
                         responseFields(fieldWithPath("resultCode").description("상태 코드"))));
     }
 
-    private ServerRegistrationV1Request create(){
-        return new ServerRegistrationV1Request("https://service-hub.org","/service/search",
+    @Test
+    @DisplayName("[POST] [/api/v1/server/disable] 서버 비활성화")
+    public void disableTest() throws Exception{
+        String token = stubToken();
+        Customer customer = stubCustomer();
+        ServerDisableV1Request request = createServerDisableV1Request();
+
+        given(bringCustomer.bring(token)).willReturn(customer);
+        willDoNothing().given(serverDeActivator).deactivate(customer.getId(),request.convert());
+
+        mockMvc.perform(post("/api/v1/server/disable")
+                        .contentType(MediaType.APPLICATION_JSON)
+                        .content(objectMapper.writeValueAsBytes(request))
+                        .header("Authorization","Bearer " + token))
+                .andExpect(status().isOk())
+                .andExpect(handler().methodName("disable"))
+                .andExpect(jsonPath("$.resultCode").value("SUCCESS"))
+                .andDo(document("disable",
+                        requestFields(
+                                fieldWithPath("serverName").description("서버 이름"),
+                                fieldWithPath("serverId").description("서버 ID")),
+                        responseFields(fieldWithPath("resultCode").description("상태 코드"))));
+
+    }
+
+    private ServerDisableV1Request createServerDisableV1Request(){
+        return new ServerDisableV1Request("서비스 허브",1L);
+    }
+
+    private ServerRegistrationV1Request createServerRegistrationV1Request(){
+        return new ServerRegistrationV1Request("서비스 허브","https://service-hub.org","/service/search",
                 EndPointHttpMethod.GET,
                 queryParams(),
                 30,

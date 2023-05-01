@@ -20,6 +20,7 @@ public class ServerRegister {
 
     private Server toServer(Long customerId,ServerRegistrationDto dto){
         return Server.builder()
+                .serverName(dto.serverName())
                 .customerId(customerId)
                 .method(dto.method())
                 .interval(dto.interval())
