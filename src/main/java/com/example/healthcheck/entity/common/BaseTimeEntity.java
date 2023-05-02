@@ -10,7 +10,7 @@ import org.springframework.data.annotation.LastModifiedDate;
 import org.springframework.data.jpa.domain.support.AuditingEntityListener;
 import org.springframework.format.annotation.DateTimeFormat;
 
-import java.time.LocalDate;
+import java.time.LocalDateTime;
 
 @Getter
 @MappedSuperclass
@@ -20,11 +20,11 @@ public abstract class BaseTimeEntity {
     @Column(nullable = false,updatable = false)
     @CreatedDate
     @DateTimeFormat(iso = DateTimeFormat.ISO.DATE_TIME)
-    protected LocalDate createdAt;
+    protected LocalDateTime createdAt;
 
     @Column(nullable = false)
     @LastModifiedDate
     @DateTimeFormat(iso = DateTimeFormat.ISO.DATE_TIME)
-    protected LocalDate updatedAt;
+    protected LocalDateTime updatedAt;
 
 }
