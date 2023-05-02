@@ -24,7 +24,8 @@ public class Server extends BaseTimeEntity {
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     @Column(name = "server_id")
     private Long id;
-    private Long customerId;
+
+    private String email;
 
     @Column(nullable = false)
     private String serverName;
@@ -38,7 +39,7 @@ public class Server extends BaseTimeEntity {
     private EndPointHttpMethod method;
 
     @Column(name = "interval_time" , nullable = false)
-    private Integer interval;
+    private Integer interval; // minute
 
     @Column(nullable = false)
     private boolean active;
@@ -48,7 +49,7 @@ public class Server extends BaseTimeEntity {
 
     @Builder
     public Server(String serverName,
-                  Long customerId ,
+                  String email ,
                   String host,
                   String path,
                   EndPointHttpMethod method,
@@ -56,7 +57,7 @@ public class Server extends BaseTimeEntity {
                   Integer interval,
                   boolean active) {
         this.serverName = serverName;
-        this.customerId = customerId;
+        this.email = email;
         this.host = host;
         this.path = path;
         this.method = method;

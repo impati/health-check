@@ -8,6 +8,8 @@ import org.springframework.util.MultiValueMap;
 
 import java.util.List;
 
+import static com.example.healthcheck.steps.ServerSteps.createStubServer;
+
 class ServerTest {
 
     @Test
@@ -15,22 +17,11 @@ class ServerTest {
     public void UriComponentsBuilderTest() throws Exception{
         List<QueryParam> queryParams = List.of(createQueryParam("key","value"),createQueryParam("key","value2"));
 
-        Server server = createServer("https://service-hub.org","/service/search",toPrams(queryParams));
+        Server server = createStubServer("https://service-hub.org","/service/search",toPrams(queryParams));
 
         Assertions.assertThat(server.getUrl())
                 .isEqualTo("https://service-hub.org/service/search?key=value&key=value2");
 
-    }
-
-    private Server createServer(String host,String path,MultiValueMap<String,String> params){
-        return Server.builder()
-                .host(host)
-                .path(path)
-                .params(params)
-                .method(EndPointHttpMethod.GET)
-                .interval(30)
-                .active(true)
-                .build();
     }
 
     private MultiValueMap<String,String> toPrams(List<QueryParam> queryParams){
