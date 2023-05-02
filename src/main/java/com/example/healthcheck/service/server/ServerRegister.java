@@ -14,14 +14,14 @@ public class ServerRegister {
 
     private final ServerRepository serverRepository;
 
-    public void register(Long customerId , ServerRegistrationDto registrationDto){
-        serverRepository.save(toServer(customerId,registrationDto));
+    public void register(String email , ServerRegistrationDto registrationDto){
+        serverRepository.save(toServer(email,registrationDto));
     }
 
-    private Server toServer(Long customerId,ServerRegistrationDto dto){
+    private Server toServer(String email,ServerRegistrationDto dto){
         return Server.builder()
                 .serverName(dto.serverName())
-                .customerId(customerId)
+                .email(email)
                 .method(dto.method())
                 .interval(dto.interval())
                 .host(dto.host())

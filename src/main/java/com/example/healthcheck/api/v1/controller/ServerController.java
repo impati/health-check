@@ -20,13 +20,13 @@ public class ServerController {
     private final ServerDeActivator serverDeActivator;
     @PostMapping
     public Response<Void> register(@RequestBody ServerRegistrationV1Request request, Customer customer){
-        serverRegister.register(customer.getId(),request.convert());
+        serverRegister.register(customer.getEmail(),request.convert());
         return Response.success();
     }
 
     @PostMapping("/disable")
     public Response<Void> disable(@RequestBody ServerDisableV1Request request, Customer customer){
-        serverDeActivator.deactivate(customer.getId(),request.convert());
+        serverDeActivator.deactivate(customer.getEmail(),request.convert());
         return Response.success();
     }
 }

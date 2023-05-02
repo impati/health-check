@@ -1,7 +1,7 @@
 package com.example.healthcheck.api.v1.controller;
 
 import com.example.healthcheck.security.BringCustomer;
-import com.example.healthcheck.service.health.HealthRecordSaver;
+import com.example.healthcheck.service.health.HealthCheckManager;
 import org.junit.jupiter.api.DisplayName;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.extension.ExtendWith;
@@ -33,13 +33,13 @@ class HealthCheckControllerTest {
     private BringCustomer bringCustomer;
 
     @MockBean
-    private HealthRecordSaver healthRecordSaver;
+    private HealthCheckManager healthCheckManager;
 
     @Test
     @DisplayName("[POST] [/api/v1/check/{serviceId}] 서버에 헬스 체크 테스트")
     public void checkTest() throws Exception{
 
-        willDoNothing().given(healthRecordSaver).saveRecord(1L);
+        willDoNothing().given(healthCheckManager).check(1L);
 
         mockMvc.perform(post("/api/v1/check/{serverId}",1))
                 .andExpect(status().isOk())

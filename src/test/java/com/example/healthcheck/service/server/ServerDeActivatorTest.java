@@ -41,7 +41,7 @@ class ServerDeActivatorTest {
         Server server = serverSteps.createDefault();
 
         // when
-        serverDeActivator.deactivate(server.getId());
+        serverDeActivator.deactivate(server);
 
         // then
         Assertions.assertThat(server.isActive())
@@ -55,7 +55,7 @@ class ServerDeActivatorTest {
         Server server = serverSteps.createDefault();
 
         // when
-        serverDeActivator.deactivate(server.getId());
+        serverDeActivator.deactivate(server);
 
         // then
         Assertions.assertThat(server.isActive())
@@ -74,7 +74,7 @@ class ServerDeActivatorTest {
         // expected
 
         HealthCheckException healthCheckException = assertThrows(HealthCheckException.class,
-                () -> serverDeActivator.deactivate(server.getCustomerId(), serverDisableDto));
+                () -> serverDeActivator.deactivate(server.getEmail(), serverDisableDto));
 
         Assertions.assertThat(healthCheckException.getMessage())
                 .isEqualTo("입력한 서버 정보가 올바르지 않습니다.");
@@ -93,7 +93,7 @@ class ServerDeActivatorTest {
         // expected
 
         HealthCheckException healthCheckException = assertThrows(HealthCheckException.class,
-                () -> serverDeActivator.deactivate(server.getCustomerId() + 1, serverDisableDto));
+                () -> serverDeActivator.deactivate(server.getEmail() + "noisy", serverDisableDto));
 
         Assertions.assertThat(healthCheckException.getMessage())
                 .isEqualTo("다른 사용자 영역에 침범했습니다.");

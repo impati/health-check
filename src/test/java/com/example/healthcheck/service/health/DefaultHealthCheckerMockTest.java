@@ -17,6 +17,8 @@ import org.springframework.web.client.RestTemplate;
 
 import java.io.IOException;
 
+import static com.example.healthcheck.steps.ServerSteps.createStubServerWithHost;
+
 @SpringBootTest
 @ExtendWith(MockitoExtension.class)
 class DefaultHealthCheckerMockTest {
@@ -28,6 +30,8 @@ class DefaultHealthCheckerMockTest {
     private RestTemplate restTemplate;
 
     private MockWebServer mockWebServer;
+
+
 
     @BeforeEach
     void setup() throws IOException {
@@ -47,7 +51,7 @@ class DefaultHealthCheckerMockTest {
         // given
         String baseUrl = mockWebServer.url("/").toString();
 
-        Server server = stubServer(baseUrl);
+        Server server = createStubServerWithHost(baseUrl);
 
         // when
         mockWebServer.enqueue(new MockResponse()
@@ -65,7 +69,7 @@ class DefaultHealthCheckerMockTest {
         // given
         String baseUrl = mockWebServer.url("/").toString();
 
-        Server server = stubServer(baseUrl);
+        Server server = createStubServerWithHost(baseUrl);
 
         // when
         mockWebServer.enqueue(new MockResponse()
@@ -88,7 +92,7 @@ class DefaultHealthCheckerMockTest {
         // given
         String baseUrl = mockWebServer.url("/").toString();
 
-        Server server = stubServer(baseUrl);
+        Server server = createStubServerWithHost(baseUrl);
 
         // when
         mockWebServer.enqueue(new MockResponse()
@@ -106,14 +110,4 @@ class DefaultHealthCheckerMockTest {
     }
 
 
-
-    private Server stubServer(String host){
-        return Server.builder()
-                .serverName("테스트 서버")
-                .host(host)
-                .customerId(1L)
-                .active(true)
-                .interval(30)
-                .build();
-    }
 }

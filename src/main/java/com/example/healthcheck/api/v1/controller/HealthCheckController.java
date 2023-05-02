@@ -1,7 +1,7 @@
 package com.example.healthcheck.api.v1.controller;
 
 import com.example.healthcheck.api.v1.response.Response;
-import com.example.healthcheck.service.health.HealthRecordSaver;
+import com.example.healthcheck.service.health.HealthCheckManager;
 import lombok.RequiredArgsConstructor;
 import org.springframework.web.bind.annotation.PathVariable;
 import org.springframework.web.bind.annotation.PostMapping;
@@ -13,12 +13,13 @@ import org.springframework.web.bind.annotation.RestController;
 @RequiredArgsConstructor
 public class HealthCheckController {
 
-    private final HealthRecordSaver healthRecordSaver;
+    private final HealthCheckManager healthCheckManager;
 
     @PostMapping("/{serverId}")
     public Response<Void> check(@PathVariable Long serverId){
-        healthRecordSaver.saveRecord(serverId);
+        healthCheckManager.check(serverId);
         return Response.success();
     }
+
 
 }

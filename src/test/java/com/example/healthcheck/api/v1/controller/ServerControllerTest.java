@@ -54,7 +54,7 @@ class ServerControllerTest {
         ServerRegistrationV1Request request = createServerRegistrationV1Request();
 
         given(bringCustomer.bring(token)).willReturn(customer);
-        willDoNothing().given(serverRegister).register(customer.getId(),request.convert());
+        willDoNothing().given(serverRegister).register(customer.getEmail(),request.convert());
 
         mockMvc.perform(post("/api/v1/server")
                         .contentType(MediaType.APPLICATION_JSON)
@@ -84,7 +84,7 @@ class ServerControllerTest {
         ServerDisableV1Request request = createServerDisableV1Request();
 
         given(bringCustomer.bring(token)).willReturn(customer);
-        willDoNothing().given(serverDeActivator).deactivate(customer.getId(),request.convert());
+        willDoNothing().given(serverDeActivator).deactivate(customer.getEmail(),request.convert());
 
         mockMvc.perform(post("/api/v1/server/disable")
                         .contentType(MediaType.APPLICATION_JSON)

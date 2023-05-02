@@ -34,7 +34,7 @@ class ServerRegisterTest {
         String host = "https://service-hub.org";
         String path = "/service/search";
         Integer interval = 30;
-        Long customerId = 1L;
+        String email = "email";
         ServerRegistrationDto serverRegistrationDto = ServerRegistrationDto.builder()
                 .serverName(serverName)
                 .active(true)
@@ -46,7 +46,7 @@ class ServerRegisterTest {
                 .build();
 
         // when
-        serverRegister.register(customerId,serverRegistrationDto);
+        serverRegister.register(email,serverRegistrationDto);
 
         // then
         assertThat(serverRepository.findAll().size())
@@ -60,7 +60,7 @@ class ServerRegisterTest {
         String serverName = "서비스 허브";
         String host = "https://impati-customer.com";
         Integer interval = 30;
-        Long customerId = 1L;
+        String email = "email";
         MultiValueMap<String, String> param = createParam("clientId", List.of("123"));
         ServerRegistrationDto serverRegistrationDto = ServerRegistrationDto.builder()
                 .serverName(serverName)
@@ -72,13 +72,13 @@ class ServerRegisterTest {
                 .build();
 
         // when
-        serverRegister.register(customerId,serverRegistrationDto);
+        serverRegister.register(email,serverRegistrationDto);
 
         // then
         Server server = serverRepository.findAll().stream().findFirst().orElseThrow(IllegalStateException::new);
         assertThat(server.getServerName()).isEqualTo(serverName);
         assertThat(server.getHost()).isEqualTo(host);
-        assertThat(server.getCustomerId()).isEqualTo(customerId);
+        assertThat(server.getEmail()).isEqualTo(email);
         assertThat(server.getInterval()).isEqualTo(interval);
         assertThat(server.getMethod()).isEqualTo(EndPointHttpMethod.GET);
         assertThat(server.getQueryParams().size()).isEqualTo(1);
@@ -91,7 +91,7 @@ class ServerRegisterTest {
         String serverName = "서비스 허브";
         String host = "https://impati-customer.com";
         Integer interval = 30;
-        Long customerId = 1L;
+        String email = "email";
         MultiValueMap<String, String> param = createParam("clientId", List.of("123","456","aaa"));
         ServerRegistrationDto serverRegistrationDto = ServerRegistrationDto.builder()
                 .serverName(serverName)
@@ -103,13 +103,13 @@ class ServerRegisterTest {
                 .build();
 
         // when
-        serverRegister.register(customerId,serverRegistrationDto);
+        serverRegister.register(email,serverRegistrationDto);
 
         // then
         Server server = serverRepository.findAll().stream().findFirst().orElseThrow(IllegalStateException::new);
         assertThat(server.getServerName()).isEqualTo(serverName);
         assertThat(server.getHost()).isEqualTo(host);
-        assertThat(server.getCustomerId()).isEqualTo(customerId);
+        assertThat(server.getEmail()).isEqualTo(email);
         assertThat(server.getInterval()).isEqualTo(interval);
         assertThat(server.getMethod()).isEqualTo(EndPointHttpMethod.GET);
         assertThat(server.getQueryParams().size()).isEqualTo(3);

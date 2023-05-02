@@ -1,11 +1,11 @@
 package com.example.healthcheck.service.common;
 
-import com.example.healthcheck.entity.server.EndPointHttpMethod;
 import com.example.healthcheck.entity.server.Server;
 import org.assertj.core.api.Assertions;
 import org.junit.jupiter.api.DisplayName;
 import org.junit.jupiter.api.Test;
-import org.springframework.util.LinkedMultiValueMap;
+
+import static com.example.healthcheck.steps.ServerSteps.createStubServerWithDefaults;
 
 class DefaultEntityFinderTest {
 
@@ -23,19 +23,8 @@ class DefaultEntityFinderTest {
     }
 
     private <T> Object find(Long id, Class<T> clazz){
-        if(clazz.isAssignableFrom(Server.class)) return stubServer();
+        if(clazz.isAssignableFrom(Server.class)) return createStubServerWithDefaults();
         throw new IllegalStateException("지원하지 않는 클래스 타입입니다.");
     }
 
-    private Server stubServer(){
-        return Server.builder()
-                .serverName("테스트 서버")
-                .customerId(1L)
-                .method(EndPointHttpMethod.GET)
-                .interval(30)
-                .host("http://localhost:8080")
-                .active(true)
-                .params(new LinkedMultiValueMap<>())
-                .build();
-    }
 }

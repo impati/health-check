@@ -18,29 +18,28 @@ public class ServerDeActivator {
     private final EntityFinder entityFinder;
 
     @Transactional
-    public void deactivate(Long serverId){
-        Server server = entityFinder.findOrElseThrow(serverId, Server.class);
+    public void deactivate(Server server){
         server.deactivate();
     }
 
     @Transactional
-    public void deactivate(Long customerId,ServerDisableDto serverDisableDto){
+    public void deactivate(String email,ServerDisableDto serverDisableDto){
         Server server = entityFinder.findOrElseThrow(serverDisableDto.serverId(), Server.class);
-        serverValidate(server,serverDisableDto.serverName(),customerId);
+        serverValidate(server,serverDisableDto.serverName(),email);
         server.deactivate();
     }
 
-    private void serverValidate(Server server,String serverName,Long customerId){
+    private void serverValidate(Server server,String serverName,String email){
         if(!isSameServer(server.getServerName(),serverName))throw new HealthCheckException(ErrorCode.SERVER_MISMATCH);
-        if(!isOwner(server,customerId)) throw new HealthCheckException(ErrorCode.INVALID_ACCESS);
+        if(!isOwner(server,email)) throw new HealthCheckException(ErrorCode.INVALID_ACCESS);
     }
 
     private boolean isSameServer(String realServerName,String requestServerName){
         return realServerName.equals(requestServerName);
     }
 
-    private boolean isOwner(Server server,Long customerId){
-        return server.getCustomerId().equals(customerId);
+    private boolean isOwner(Server server,String email){
+        return server.getEmail().equals(email);
     }
 
 }
