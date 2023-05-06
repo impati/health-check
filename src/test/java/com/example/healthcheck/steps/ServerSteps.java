@@ -15,53 +15,36 @@ public class ServerSteps {
     }
 
     public static Server createStubServerWithDefaults(){
-        return Server.builder()
-                .serverName("디폴트 서버")
-                .email("email")
-                .method(EndPointHttpMethod.GET)
-                .interval(30)
-                .host("http://localhost:8080")
-                .active(true)
-                .params(new LinkedMultiValueMap<>())
+        return createDefaultBuilder()
                 .build();
     }
 
     public static Server createStubServerWithHost(String host){
-        return Server.builder()
-                .serverName("디폴트 서버")
-                .email("email")
-                .method(EndPointHttpMethod.GET)
-                .interval(30)
+        return createDefaultBuilder()
                 .host(host)
-                .active(true)
-                .params(new LinkedMultiValueMap<>())
                 .build();
     }
 
-    public static Server createStubServer(String host, String path,
-                                                      MultiValueMap<String,String> params){
-        return Server.builder()
-                .serverName("디폴트 서버")
-                .email("email")
-                .method(EndPointHttpMethod.GET)
-                .interval(30)
+    public static Server createStubServer(String host,
+                                          String path,
+                                          MultiValueMap<String,String> params){
+        return createDefaultBuilder()
                 .host(host)
                 .path(path)
-                .active(true)
                 .params(params)
                 .build();
     }
 
-    public Server createServer(String host){
-        return serverRepository.save(Server.builder()
-                .serverName("호스트를 지정한 서버")
-                .email("email")
+    private static Server.ServerBuilder createDefaultBuilder(){
+        return Server.builder()
+                .serverName("디폴트 서버 네임")
+                .email("test@test.com")
                 .method(EndPointHttpMethod.GET)
                 .interval(30)
-                .host(host)
-                .active(true)
+                .host("https://service-hub.org")
+                .path("/service/search")
                 .params(new LinkedMultiValueMap<>())
-                .build());
+                .active(true);
     }
 
     public Server createDefault(){
@@ -69,39 +52,43 @@ public class ServerSteps {
     }
 
     public Server createNonexistentServer(){
-        return serverRepository.save(Server.builder()
-                .serverName("존재하지 않는 서버")
-                .email("email")
-                .method(EndPointHttpMethod.GET)
-                .interval(30)
+        return save(createDefaultBuilder()
                 .host("http://XXXX:8080")
-                .active(true)
-                .params(new LinkedMultiValueMap<>())
+                .serverName("존재하지 않는 서버")
                 .build());
     }
 
     public Server createExistServer(){
-        return serverRepository.save(Server.builder()
+        return save(createDefaultBuilder()
                 .serverName("존재하는 서버")
-                .email("email")
-                .method(EndPointHttpMethod.GET)
-                .interval(30)
                 .host("https://naver.com")
-                .active(true)
-                .params(new LinkedMultiValueMap<>())
                 .build());
     }
 
     public Server createWithEmail(String email){
-        return serverRepository.save(Server.builder()
-                .serverName("존재하는 서버")
+        return save(createDefaultBuilder()
                 .email(email)
-                .method(EndPointHttpMethod.GET)
-                .interval(30)
-                .host("https://naver.com")
-                .active(true)
-                .params(new LinkedMultiValueMap<>())
                 .build());
     }
+
+    public Server create(String serverName,boolean isActive){
+        return save(createDefaultBuilder()
+                .serverName(serverName)
+                .active(isActive)
+                .build());
+    }
+
+    private Server save(Server server){
+        return serverRepository.save(server);
+    }
+
+    public Server create(String serverName,boolean isActive,int interval){
+        return save(createDefaultBuilder()
+                .serverName(serverName)
+                .active(isActive)
+                .interval(interval)
+                .build());
+    }
+
 
 }

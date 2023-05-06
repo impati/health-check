@@ -20,6 +20,7 @@ public class HealthCheckManager {
 
     public void check(Long serverId){
         Server server = entityFinder.findOrElseThrow(serverId, Server.class);
+        if(!server.isActive()) return;
         try {
             healthChecker.check(server);
             healthCheckSuccessManager.process(server);
