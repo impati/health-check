@@ -5,7 +5,6 @@ import org.junit.jupiter.api.Test;
 
 import java.time.LocalDateTime;
 
-import static com.example.healthcheck.util.TimeConverter.convertLocalDateTimeFrom;
 import static com.example.healthcheck.util.TimeConverter.convertToLong;
 import static org.assertj.core.api.Assertions.assertThat;
 
@@ -29,7 +28,7 @@ class TimeConverterTest {
         // given
         long current = 60 * 24;
         // when
-        LocalDateTime localDateTime = convertLocalDateTimeFrom(current);
+        LocalDateTime localDateTime = TimeConverter.convertToLocalDateTime(current);
 
         // then
         assertThat(localDateTime).isEqualTo(LocalDateTime.of(2023, 5, 2, 0, 0));
