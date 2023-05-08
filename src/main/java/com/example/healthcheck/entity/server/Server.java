@@ -70,6 +70,18 @@ public class Server extends BaseTimeEntity {
         this.active = false;
     }
 
+    public void activate(){
+        this.active = true;
+    }
+
+    private MultiValueMap<String,String> toPrams() {
+        MultiValueMap<String, String> multiValueMap = new LinkedMultiValueMap<>();
+        for (var element : queryParams) {
+            multiValueMap.add(element.getKey(), element.getValue());
+        }
+        return multiValueMap;
+    }
+
     public String getUrl(){
         return UriComponentsBuilder.fromHttpUrl(host)
                 .path(path)
@@ -94,17 +106,6 @@ public class Server extends BaseTimeEntity {
                     .build());
         }
     }
-
-    private MultiValueMap<String,String> toPrams(){
-        MultiValueMap<String,String> multiValueMap = new LinkedMultiValueMap<>();
-        for(var element : queryParams){
-            multiValueMap.add(element.getKey(),element.getValue());
-        }
-        return multiValueMap;
-    }
-
-
-
 
     @Override
     public boolean equals(Object o) {

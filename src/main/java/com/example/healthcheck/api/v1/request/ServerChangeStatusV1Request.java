@@ -1,24 +1,24 @@
 package com.example.healthcheck.api.v1.request;
 
-import com.example.healthcheck.service.server.dto.ServerDisableDto;
+import com.example.healthcheck.service.server.dto.ServerDto;
 import lombok.Builder;
 import lombok.Getter;
 import lombok.NoArgsConstructor;
 
 @Getter
 @NoArgsConstructor
-public class ServerDisableV1Request {
+public class ServerChangeStatusV1Request {
     private String serverName;
     private Long serverId;
 
     @Builder
-    public ServerDisableV1Request(String serverName, Long serverId) {
+    public ServerChangeStatusV1Request(String serverName, Long serverId) {
         this.serverName = serverName;
         this.serverId = serverId;
     }
 
-    public ServerDisableDto convert(){
-        return ServerDisableDto.builder()
+    public ServerDto convert(){
+        return ServerDto.builder()
                 .serverName(serverName)
                 .serverId(serverId)
                 .build();
