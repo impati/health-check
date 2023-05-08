@@ -10,7 +10,7 @@ import com.example.healthcheck.repository.server.ServerRepository;
 import com.example.healthcheck.service.alarm.AlarmSender;
 import com.example.healthcheck.service.alarm.MailAlarmSender;
 import com.example.healthcheck.service.common.DefaultEntityFinder;
-import com.example.healthcheck.service.server.ServerDeActivator;
+import com.example.healthcheck.service.server.ServerStatusManager;
 import com.example.healthcheck.steps.ServerSteps;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.DisplayName;
@@ -27,7 +27,7 @@ import static org.mockito.BDDMockito.willDoNothing;
 
 @DataJpaTest
 @Import({JpaConfig.class, MailAlarmSender.class,
-        DefaultEntityFinder.class, ServerDeActivator.class,
+        DefaultEntityFinder.class, ServerStatusManager.class,
         DefaultHealthCheckFailManager.class
 })
 class DefaultHealthCheckFailManagerTest {

@@ -1,13 +1,13 @@
 package com.example.healthcheck.api.v1.controller;
 
 import com.example.healthcheck.api.v1.request.QueryParamRequest;
-import com.example.healthcheck.api.v1.request.ServerDisableV1Request;
+import com.example.healthcheck.api.v1.request.ServerChangeStatusV1Request;
 import com.example.healthcheck.api.v1.request.ServerRegistrationV1Request;
 import com.example.healthcheck.entity.server.EndPointHttpMethod;
 import com.example.healthcheck.security.BringCustomer;
 import com.example.healthcheck.security.Customer;
-import com.example.healthcheck.service.server.ServerDeActivator;
 import com.example.healthcheck.service.server.ServerRegister;
+import com.example.healthcheck.service.server.ServerStatusManager;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import org.junit.jupiter.api.DisplayName;
 import org.junit.jupiter.api.Test;
@@ -41,7 +41,7 @@ class ServerControllerTest {
     @MockBean
     private BringCustomer bringCustomer;
     @MockBean
-    private ServerDeActivator serverDeActivator;
+    private ServerStatusManager serverStatusManager;
     @Autowired
     private MockMvc mockMvc;
 
@@ -81,10 +81,10 @@ class ServerControllerTest {
     public void disableTest() throws Exception{
         String token = stubToken();
         Customer customer = stubCustomer();
-        ServerDisableV1Request request = createServerDisableV1Request();
+        ServerChangeStatusV1Request request = createServerDisableV1Request();
 
         given(bringCustomer.bring(token)).willReturn(customer);
-        willDoNothing().given(serverDeActivator).deactivate(customer.getEmail(),request.convert());
+        willDoNothing().given(serverStatusManager).deactivate(request.convert(),customer.getEmail());
 
         mockMvc.perform(post("/api/v1/server/disable")
                         .contentType(MediaType.APPLICATION_JSON)
@@ -101,8 +101,33 @@ class ServerControllerTest {
 
     }
 
-    private ServerDisableV1Request createServerDisableV1Request(){
-        return new ServerDisableV1Request("서비스 허브",1L);
+    @Test
+    @DisplayName("[POST] [/api/v1/server/enable] 서버 활성화")
+    public void enableTest() throws Exception{
+        String token = stubToken();
+        Customer customer = stubCustomer();
+        ServerChangeStatusV1Request request = createServerDisableV1Request();
+
+        given(bringCustomer.bring(token)).willReturn(customer);
+        willDoNothing().given(serverStatusManager).deactivate(request.convert(),customer.getEmail());
+
+        mockMvc.perform(post("/api/v1/server/enable")
+                        .contentType(MediaType.APPLICATION_JSON)
+                        .content(objectMapper.writeValueAsBytes(request))
+                        .header("Authorization","Bearer " + token))
+                .andExpect(status().isOk())
+                .andExpect(handler().methodName("enable"))
+                .andExpect(jsonPath("$.resultCode").value("SUCCESS"))
+                .andDo(document("enable",
+                        requestFields(
+                                fieldWithPath("serverName").description("서버 이름"),
+                                fieldWithPath("serverId").description("서버 ID")),
+                        responseFields(fieldWithPath("resultCode").description("상태 코드"))));
+
+    }
+
+    private ServerChangeStatusV1Request createServerDisableV1Request(){
+        return new ServerChangeStatusV1Request("서비스 허브",1L);
     }
 
     private ServerRegistrationV1Request createServerRegistrationV1Request(){

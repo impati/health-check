@@ -5,7 +5,7 @@ import com.example.healthcheck.entity.server.Server;
 import com.example.healthcheck.exception.HealthCheckException;
 import com.example.healthcheck.repository.server.ServerRepository;
 import com.example.healthcheck.service.common.DefaultEntityFinder;
-import com.example.healthcheck.service.server.dto.ServerDisableDto;
+import com.example.healthcheck.service.server.dto.ServerDto;
 import com.example.healthcheck.steps.ServerSteps;
 import org.assertj.core.api.Assertions;
 import org.junit.jupiter.api.BeforeEach;
@@ -18,11 +18,11 @@ import org.springframework.context.annotation.Import;
 import static org.junit.jupiter.api.Assertions.assertThrows;
 
 @DataJpaTest
-@Import({ServerDeActivator.class, JpaConfig.class, DefaultEntityFinder.class})
-class ServerDeActivatorTest {
+@Import({ServerStatusManager.class, JpaConfig.class, DefaultEntityFinder.class})
+class ServerStatusManagerTest {
 
     @Autowired
-    private ServerDeActivator serverDeActivator;
+    private ServerStatusManager serverStatusManager;
 
     @Autowired
     private ServerRepository serverRepository;
@@ -41,7 +41,7 @@ class ServerDeActivatorTest {
         Server server = serverSteps.createDefault();
 
         // when
-        serverDeActivator.deactivate(server);
+        serverStatusManager.deactivate(server);
 
         // then
         Assertions.assertThat(server.isActive())
@@ -53,9 +53,12 @@ class ServerDeActivatorTest {
     public void deactivateTestExternal() throws Exception{
         // given
         Server server = serverSteps.createDefault();
-
+        ServerDto serverDto = ServerDto.builder()
+                .serverName(server.getServerName())
+                .serverId(server.getId())
+                .build();
         // when
-        serverDeActivator.deactivate(server);
+        serverStatusManager.deactivate(serverDto,server.getEmail());
 
         // then
         Assertions.assertThat(server.isActive())
@@ -67,14 +70,14 @@ class ServerDeActivatorTest {
     public void deactivateTestExternalFailDifferent() throws Exception{
         // given
         Server server = serverSteps.createDefault();
-        ServerDisableDto serverDisableDto = ServerDisableDto.builder()
+        ServerDto serverDto = ServerDto.builder()
                 .serverName("다른 서버")
                 .serverId(server.getId())
                 .build();
-        // expected
 
+        // expected
         HealthCheckException healthCheckException = assertThrows(HealthCheckException.class,
-                () -> serverDeActivator.deactivate(server.getEmail(), serverDisableDto));
+                () -> serverStatusManager.deactivate(serverDto,server.getEmail()));
 
         Assertions.assertThat(healthCheckException.getMessage())
                 .isEqualTo("입력한 서버 정보가 올바르지 않습니다.");
@@ -86,17 +89,36 @@ class ServerDeActivatorTest {
     public void deactivateTestExternalFailOtherCustomer() throws Exception{
         // given
         Server server = serverSteps.createDefault();
-        ServerDisableDto serverDisableDto = ServerDisableDto.builder()
+        ServerDto serverDto = ServerDto.builder()
                 .serverName(server.getServerName())
                 .serverId(server.getId())
                 .build();
         // expected
 
         HealthCheckException healthCheckException = assertThrows(HealthCheckException.class,
-                () -> serverDeActivator.deactivate(server.getEmail() + "noisy", serverDisableDto));
+                () -> serverStatusManager.deactivate(serverDto,server.getEmail() + "noisy"));
 
         Assertions.assertThat(healthCheckException.getMessage())
                 .isEqualTo("다른 사용자 영역에 침범했습니다.");
+    }
+
+    @Test
+    @DisplayName("서버 활성화 테스트")
+    public void deactivateTest() throws Exception{
+        // given
+        Server server = serverSteps.create("테스트 서버",false);
+        ServerDto serverDto = ServerDto.builder()
+                .serverName(server.getServerName())
+                .serverId(server.getId())
+                .build();
+
+        // when
+        serverStatusManager.activate(serverDto,server.getEmail());
+
+        // then
+        Assertions.assertThat(server.isActive())
+                .isTrue();
+
     }
 
 
