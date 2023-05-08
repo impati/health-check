@@ -7,7 +7,7 @@ import com.example.healthcheck.entity.server.Server;
 import com.example.healthcheck.repository.alarm.AlarmRecordRepository;
 import com.example.healthcheck.repository.health.HealthRecordRepository;
 import com.example.healthcheck.service.alarm.AlarmSender;
-import com.example.healthcheck.service.server.ServerDeActivator;
+import com.example.healthcheck.service.server.ServerStatusManager;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.stereotype.Service;
@@ -27,10 +27,10 @@ public class DefaultHealthCheckFailManager implements  HealthCheckFailManager{
     private final AlarmSender alarmSender;
     private final AlarmRecordRepository alarmRecordRepository;
     private final HealthRecordRepository healthRecordRepository;
-    private final ServerDeActivator serverDeActivator;
+    private final ServerStatusManager serverStatusManager;
 
     public void process(Server server) {
-        if(isDeActivate(server)) serverDeActivator.deactivate(server);
+        if(isDeActivate(server)) serverStatusManager.deactivate(server);
         saveHealRecord(server);
         alarmSender.send(server,server.getEmail());
         saveAlarmRecord(server);

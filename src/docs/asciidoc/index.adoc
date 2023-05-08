@@ -38,3 +38,13 @@ include::{snippets}/disable/request-fields.adoc[]
 include::{snippets}/disable/http-response.adoc[]
 include::{snippets}/disable/response-fields.adoc[]
 
+
+= 서버 활성화
+
+=== 요청
+include::{snippets}/enable/http-request.adoc[]
+include::{snippets}/enable/request-fields.adoc[]
+
+=== 응답
+include::{snippets}/enable/http-response.adoc[]
+include::{snippets}/enable/response-fields.adoc[]

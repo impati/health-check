@@ -4,7 +4,7 @@ import com.example.healthcheck.entity.server.Server;
 import com.example.healthcheck.exception.ErrorCode;
 import com.example.healthcheck.exception.HealthCheckException;
 import com.example.healthcheck.service.common.EntityFinder;
-import com.example.healthcheck.service.server.dto.ServerDisableDto;
+import com.example.healthcheck.service.server.dto.ServerDto;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.stereotype.Service;
@@ -13,7 +13,7 @@ import org.springframework.transaction.annotation.Transactional;
 @Slf4j
 @Service
 @RequiredArgsConstructor
-public class ServerDeActivator {
+public class ServerStatusManager {
 
     private final EntityFinder entityFinder;
 
@@ -23,10 +23,21 @@ public class ServerDeActivator {
     }
 
     @Transactional
-    public void deactivate(String email,ServerDisableDto serverDisableDto){
-        Server server = entityFinder.findOrElseThrow(serverDisableDto.serverId(), Server.class);
-        serverValidate(server,serverDisableDto.serverName(),email);
+    public void deactivate(ServerDto serverDto,String email){
+        Server server = getServer(serverDto.serverId(),serverDto.serverName(),email);
         server.deactivate();
+    }
+
+    @Transactional
+    public void activate(ServerDto serverDto,String email){
+        Server server = getServer(serverDto.serverId(),serverDto.serverName(),email);
+        server.activate();
+    }
+
+    private Server getServer(Long serverId ,String serverName, String email){
+        Server server = entityFinder.findOrElseThrow(serverId, Server.class);
+        serverValidate(server,serverName,email);
+        return server;
     }
 
     private void serverValidate(Server server,String serverName,String email){
