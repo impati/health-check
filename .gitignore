@@ -38,3 +38,4 @@ out/
 
 ### Custom ###
 *.yml
+/src/main/java/com/example/healthcheck/support/
