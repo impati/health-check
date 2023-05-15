@@ -74,10 +74,11 @@
 
 <img src="docs/class.png" width="700">
 
-- HealthCheckTimeExaminer : 큐를 검사하고 헬스 체크를 수행하는 역할을 가집니다.
-- HealthCheckRequester : 대상 서버에 헬스 기능을 호출하는 역할을 가집니다. 
+- HealthTimeChecker : 1분 마다 큐를 검사할 HealthTargetChecker 를 비동기 호출한다.
+- HealthTargetImporter: 활성화된 서버  정보를 가져오는 역할을 가집니다.
+- HealthTargetChecker : 큐에 있는 헬스 체크 대상 서버를 체크하고  HealthCheckRequester 를 호출하는 역할을 가집니다.
+- HealthCheckRequester : 대상 서버에 헬스 기능을 호출하는 역할을 가집니다.
 - HealthCheckInitializer : 활성화된 서버를 우선순위 큐를 초기화하는 역할을 가집니다.
-- HealthCheckSynchronizer : 헬스 체크 대상 서버를 동기화하는 역할을 가집니다.
 - HealthCheckManager : 헬스 체크를 호출하고 성공과 실패 Manager 를 호출하는 역할을 가집니다.
 - HealthChecker : 헬스 체크하는 역할을 담당합니다.
 - HealthCheckSuccessManager : 헬스 체크가 성공했을 때 성공 레코드를 저장하는 역할을 가집니다.
@@ -91,6 +92,21 @@
 
 <img src="docs/check-queue.png" width="700">
 
+1. HealthTimeChecker 가 1분마다 HealthTargetChecker 를 비동기 호출하여 검사에 지연이 발생하지 않도록합니다. 
+2. HealthTargetChecker 는 HealthTargetImporter 로 부터 서버 정보를 담고 있는 큐를 초기화하거나 동기화합니다. 
+3. HealthTargetImporter 는 활성화된 서버를 가져옵니다. 
+4. HealthTargetChecker 는 서버 정보를 담고 있는 큐를 확인하여 체크 대상 서버에 대해 HealthCheckRequester 호출하여 헬스 체크를 수행해줍니다. 
+5. HealthCheckRequester 는 동기적으로 헬스 체크를 수행합니다.
+
 ## health check , sendMail
 
 <img src="docs/check-sequence.png" width="700">
+
+- 성공 시
+1. HealthCheckManager 는 HeathChecker 를 호출하여 서버에 실제 호출을 수행합니다.
+2. 헬스 체크 성공 시 성공 레코드를 저장합니다.
+
+- 실패 시
+1. HealthCheckManager 는 HeathChecker 를 호출하여 서버에 실제 호출을 수행합니다.
+2. 헬스 체크 살패 시 성공 레코드를 저장하고 종료합니다.
+3. 실패 알람을 서버를 등록한 사용자 이메일로 보냅니다.

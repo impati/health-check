@@ -3,16 +3,15 @@ package com.example.healthcheck.config;
 import com.example.healthcheck.service.alarm.AlarmSender;
 import com.example.healthcheck.service.alarm.MailAlarmSender;
 import com.example.healthcheck.service.alarm.MessageMaker;
-import com.example.healthcheck.util.Application;
+import com.example.healthcheck.service.alarm.StubAlarmSender;
 import lombok.RequiredArgsConstructor;
-import org.springframework.boot.context.properties.EnableConfigurationProperties;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
+import org.springframework.context.annotation.Profile;
 import org.springframework.mail.javamail.JavaMailSender;
 import org.springframework.web.client.RestTemplate;
 
 @Configuration
-@EnableConfigurationProperties(Application.class)
 @RequiredArgsConstructor
 public class AppConfig {
     private final JavaMailSender javaMailSender;
@@ -26,7 +25,14 @@ public class AppConfig {
     public MessageMaker messageMaker() { return new MessageMaker(javaMailSender);}
 
     @Bean
+    @Profile("prod")
     public AlarmSender mailAlarmSender(){
         return new MailAlarmSender(javaMailSender,messageMaker());
+    }
+
+    @Bean
+    @Profile("local")
+    public AlarmSender stubAlarmSender(){
+        return new StubAlarmSender();
     }
 }

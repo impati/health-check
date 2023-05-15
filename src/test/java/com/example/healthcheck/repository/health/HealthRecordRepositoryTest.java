@@ -13,6 +13,7 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.test.autoconfigure.orm.jpa.DataJpaTest;
 import org.springframework.context.annotation.Import;
 
+import java.util.List;
 import java.util.Optional;
 
 import static org.assertj.core.api.Assertions.assertThat;
@@ -74,6 +75,33 @@ class HealthRecordRepositoryTest {
         // then
         assertThat(response).isPresent();
         assertThat(response.get().getId()).isEqualTo(lastRecord.getId());
+
+    }
+
+    @Test
+    @DisplayName("활성화된 서버의 최신 Health 레코드 가져오기")
+    public void findDistinctHealthRecordByActiveServiceTest() throws Exception{
+        // given
+        Server firstTestServer = serverSteps.create("[테스트 서버 1]", true);
+        Server secondTestServer = serverSteps.create("[테스트 서버 2]", true);
+        Server thirdTestServer = serverSteps.create("[테스트 서버 3]", true);
+
+        HealthRecord firstRecordOfFirstTestServer = healthRecordSteps.create(firstTestServer);
+        HealthRecord lastRecordOfFirstTestServer = healthRecordSteps.create(firstTestServer);
+
+        HealthRecord firstRecordOfSecondTestServer = healthRecordSteps.create(secondTestServer);
+        HealthRecord lastRecordOfSecondTestServer = healthRecordSteps.create(secondTestServer);
+
+        List<Server> activeServer = List.of(firstTestServer, secondTestServer, thirdTestServer);
+
+        // when
+        List<HealthRecord> result = healthRecordRepository.findLatestRecordOfActiveServer(activeServer);
+
+        // then
+        assertThat(result.size()).isEqualTo(2);
+        assertThat(result).containsAnyOf(
+                lastRecordOfFirstTestServer,lastRecordOfSecondTestServer
+        );
 
     }
 

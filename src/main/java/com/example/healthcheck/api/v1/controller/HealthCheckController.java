@@ -2,11 +2,12 @@ package com.example.healthcheck.api.v1.controller;
 
 import com.example.healthcheck.api.v1.response.Response;
 import com.example.healthcheck.service.health.HealthCheckManager;
-import com.example.healthcheck.service.health.HealthCheckTimeExaminer;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
-import org.springframework.beans.factory.ObjectProvider;
-import org.springframework.web.bind.annotation.*;
+import org.springframework.web.bind.annotation.PathVariable;
+import org.springframework.web.bind.annotation.PostMapping;
+import org.springframework.web.bind.annotation.RequestMapping;
+import org.springframework.web.bind.annotation.RestController;
 
 @Slf4j
 @RestController
@@ -15,7 +16,6 @@ import org.springframework.web.bind.annotation.*;
 public class HealthCheckController {
 
     private final HealthCheckManager healthCheckManager;
-    private final ObjectProvider<HealthCheckTimeExaminer> healthCheckTimeExaminers;
 
     @PostMapping("/{serverId}")
     public Response<Void> check(@PathVariable Long serverId){
@@ -23,10 +23,4 @@ public class HealthCheckController {
         return Response.success();
     }
 
-    @GetMapping
-    public Response<Void> check(){
-        HealthCheckTimeExaminer examiner = healthCheckTimeExaminers.getObject();
-        examiner.examine();
-        return Response.success();
-    }
 }
