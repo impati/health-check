@@ -15,7 +15,7 @@
 
 이 문제를 해결해보자
 
-# 첫번째 해결 방법
+# 첫 번째 해결 방법
 
 --- 
 
@@ -85,12 +85,12 @@
 - HealthCheckFailManager : 헬스 체크가 실패했을 때 실패 레코드를 저장하고 알람을 보내는 역할을 가집니다.
 
 
-# 시퀀스 다이어그램
+# 프로세스
 
 ---
 ## check queue , Synchronize queue
 
-<img src="docs/check-queue.png" width="700">
+<img src="docs/sync.png" width="700">
 
 1. HealthTimeChecker 가 1분마다 HealthTargetChecker 를 비동기 호출하여 검사에 지연이 발생하지 않도록합니다. 
 2. HealthTargetChecker 는 HealthTargetImporter 로 부터 서버 정보를 담고 있는 큐를 초기화하거나 동기화합니다. 
@@ -110,3 +110,42 @@
 1. HealthCheckManager 는 HeathChecker 를 호출하여 서버에 실제 호출을 수행합니다.
 2. 헬스 체크 살패 시 성공 레코드를 저장하고 종료합니다.
 3. 실패 알람을 서버를 등록한 사용자 이메일로 보냅니다.
+
+
+
+# 두 번째 방법
+
+---
+첫 번째 방법의 HealthCheckRequester 를 동기에서 비동기로 구현하는 것이다.
+
+## 첫 번째 방법의 문제점
+
+--- 
+첫 번째 방법에서 한 번에 체크해야 할 대상 서버가 N 개일 경우 모두 동기 호출을 진행하기 때문에 M1 MAC PRO 기준으로 N = 10_000일 때 평균 9.1초,
+N = 100_000일 때 98초가 걸렸다. 로컬 캐싱을 사용하면서 1분 단위로 검사를 진행하기 때문에 검사 시간이 60초를 넘어가는 경우 데이터 정합성의 문제가 발생하여
+헬스 체크를 받아야 할 서버가 영원히 받지 못하는 starvation 상황이 발생할 수 있다.
+
+
+## 비동기로 전환
+
+--- 
+HealthCheckRequester 가 호출하는 HealthCheckManager 의 경우 반환타입이 void 이다.
+즉 HealthCheckRequester 가 호출하고나서 응답을 받고 활용하지 않기 때문에 동기로 동작할 필요가 없다.
+HealthCheckManager 을 비동기로 호출하는 AsyncInnerHealthCheckRequester 를 구현하고  HealthCheckRequester 구현체를
+SynchronousInnerHealCheckRequester 에서 AsyncInnerHealthCheckRequester 로 변경한다.
+
+<img src="docs/async.png" width="700">
+
+
+## 개선점 
+
+---
+
+비동기 호출로 전환만으로 N = 10_000일 때 평균 9.1초에서 0.029초로 단축, N = 100_000일 때 98초에서 0.161초로 단축했다.
+(여기서 N은 로컬 큐에 들어있는 활성화된 서버 수)
+## 남은 문제점
+
+---
+
+여전히 로컬 캐싱을 사용하기 때문에 메모리 문제와 마지막으로 저장한 HealthRecord 를 가져와 동기화를 진행하는 작업에서 N 값이 (활성화된 서버 수 와 저장된 HealthRecord 수) 커질수록
+쿼리가 1분을 넘어가는 상황이 발생.
