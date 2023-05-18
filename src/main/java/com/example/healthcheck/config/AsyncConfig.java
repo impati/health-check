@@ -10,11 +10,20 @@ import org.springframework.scheduling.concurrent.ThreadPoolTaskExecutor;
 public class AsyncConfig {
 
     @Bean(name = "healthTargetCheckTaskExecutor",destroyMethod = "shutdown")
-    public ThreadPoolTaskExecutor threadPoolExecutor(){
+    public ThreadPoolTaskExecutor healthTargetCheckTaskExecutor(){
+        ThreadPoolTaskExecutor executor = new ThreadPoolTaskExecutor();
+        executor.setCorePoolSize(1);
+        executor.setMaxPoolSize(3);
+        executor.setQueueCapacity(Integer.MAX_VALUE);
+        return executor;
+    }
+
+    @Bean(name = "healthCheckRequesterTaskExecutor",destroyMethod = "shutdown")
+    public ThreadPoolTaskExecutor healthCheckRequesterTaskExecutor(){
         ThreadPoolTaskExecutor executor = new ThreadPoolTaskExecutor();
         executor.setCorePoolSize(5);
-        executor.setMaxPoolSize(30);
-        executor.setQueueCapacity(50);
+        executor.setMaxPoolSize(20);
+        executor.setQueueCapacity(Integer.MAX_VALUE);
         return executor;
     }
 }
