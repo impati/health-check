@@ -4,13 +4,11 @@ import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.boot.context.event.ApplicationReadyEvent;
 import org.springframework.context.event.EventListener;
-import org.springframework.stereotype.Service;
 
 import static com.example.healthcheck.util.TimeConverter.convertToLong;
 import static java.time.LocalDateTime.now;
 
 @Slf4j
-@Service
 @RequiredArgsConstructor
 public class HealthTimeChecker {
 

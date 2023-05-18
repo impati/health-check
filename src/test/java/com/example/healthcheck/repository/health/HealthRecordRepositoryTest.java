@@ -13,9 +13,11 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.test.autoconfigure.orm.jpa.DataJpaTest;
 import org.springframework.context.annotation.Import;
 
+import java.time.LocalDateTime;
 import java.util.List;
 import java.util.Optional;
 
+import static java.time.LocalDateTime.now;
 import static org.assertj.core.api.Assertions.assertThat;
 
 @DataJpaTest
@@ -94,8 +96,11 @@ class HealthRecordRepositoryTest {
 
         List<Server> activeServer = List.of(firstTestServer, secondTestServer, thirdTestServer);
 
+        LocalDateTime afterTime = now().minusDays(1);
+
+
         // when
-        List<HealthRecord> result = healthRecordRepository.findLatestRecordOfActiveServer(activeServer);
+        List<HealthRecord> result = healthRecordRepository.findLatestRecordOfActiveServer(activeServer,afterTime);
 
         // then
         assertThat(result.size()).isEqualTo(2);

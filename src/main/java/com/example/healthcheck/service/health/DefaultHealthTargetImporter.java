@@ -6,15 +6,16 @@ import com.example.healthcheck.repository.server.ServerRepository;
 import com.example.healthcheck.service.health.dto.HealthCheckServer;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
-import org.springframework.stereotype.Service;
+import org.springframework.transaction.annotation.Transactional;
 
+import java.time.LocalDateTime;
 import java.util.ArrayList;
 import java.util.List;
 
 import static java.time.LocalDateTime.now;
 
 @Slf4j
-@Service
+@Transactional
 @RequiredArgsConstructor
 public class DefaultHealthTargetImporter implements HealthTargetImporter{
     private final ServerRepository serverRepository;
@@ -24,11 +25,11 @@ public class DefaultHealthTargetImporter implements HealthTargetImporter{
     public List<HealthCheckServer> importTarget() {
         List<HealthCheckServer> result = new ArrayList<>();
         List<Server> activeServer = serverRepository.findActiveServer();
-        result.addAll(healthRecordRepository.findLatestRecordOfActiveServer(activeServer)
+        LocalDateTime afterTime = now().minusDays(1);
+        result.addAll(healthRecordRepository.findLatestRecordOfActiveServer(activeServer,afterTime)
                 .stream()
                 .map(HealthCheckServer::from)
                 .toList());
-
         result.addAll(activeServer
                 .stream()
                 .map(server -> HealthCheckServer.of(server, now()))
@@ -36,4 +37,5 @@ public class DefaultHealthTargetImporter implements HealthTargetImporter{
                 .toList());
         return result;
     }
+
 }

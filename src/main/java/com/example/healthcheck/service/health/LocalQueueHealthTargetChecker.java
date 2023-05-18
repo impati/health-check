@@ -5,13 +5,11 @@ import com.example.healthcheck.service.health.dto.HealthCheckServer;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.scheduling.annotation.Async;
-import org.springframework.stereotype.Service;
 
 import static com.example.healthcheck.util.TimeConverter.convertToLong;
 import static java.time.LocalDateTime.now;
 
 @Slf4j
-@Service
 @RequiredArgsConstructor
 public class LocalQueueHealthTargetChecker implements HealthTargetChecker {
     private final static int SYNCHRONIZATION_TIME = 3;
