@@ -147,5 +147,5 @@ SynchronousInnerHealCheckRequester 에서 AsyncInnerHealthCheckRequester 로 변
 
 ---
 
-여전히 로컬 캐싱을 사용하기 때문에 메모리 문제와 마지막으로 저장한 HealthRecord 를 가져와 동기화를 진행하는 작업에서 N 값이 (활성화된 서버 수 와 저장된 HealthRecord 수) 커질수록
-쿼리가 1분을 넘어가는 상황이 발생.
+여전히 로컬 캐싱을 사용하기 때문에 메모리 문제와 마지막으로 저장한 HealthRecord 를 가져와 동기화를 진행하는 작업에서 N 값이 (활성화된 서버 수 또는 저장된 HealthRecord 수) 커질수록
+동기화 쿼리가 1분을 넘어가는 상황이 발생.
