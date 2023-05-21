@@ -141,11 +141,61 @@ SynchronousInnerHealCheckRequester 에서 AsyncInnerHealthCheckRequester 로 변
 
 ---
 
-비동기 호출로 전환만으로 N = 10_000일 때 평균 9.1초에서 0.029초로 단축, N = 100_000일 때 98초에서 0.161초로 단축했다.
+비동기 호출로 전환만으로 N = 10_000일 때 평균 9.1초에서 2.8초로 단축, N = 100_000일 때 98초에서 29초로 단축했다.
 (여기서 N은 로컬 큐에 들어있는 활성화된 서버 수)
 ## 남은 문제점
 
 ---
 
-여전히 로컬 캐싱을 사용하기 때문에 메모리 문제와 마지막으로 저장한 HealthRecord 를 가져와 동기화를 진행하는 작업에서 N 값이 (활성화된 서버 수 또는 저장된 HealthRecord 수) 커질수록
-동기화 쿼리가 1분을 넘어가는 상황이 발생.
+여전히 로컬 캐싱을 사용하기 때문에 메모리 문제와 마지막으로 저장한 HealthRecord 를 가져와 동기화를 진행하는 작업에서 N 값이 (활성화된 서버 수 와 저장된 HealthRecord 수) 커질수록
+쿼리가 1분을 넘어가는 상황이 발생.
+
+
+
+# 세 번째 방법
+
+---
+
+두 번째 방법에서 로컬 큐를 사용하지 않고 데이터베이스에 ActiveServer 를 관리하는 Table 를 두어 현재 시간에 헬스 체크를 수행해야할 서버만 가져오는 방법이다. \
+헬스 체크를 수행하고 난 후 혹은 서버의 활성화 / 비활성화 시 그때마다 ActiveServer Table 을 수정함으로써 별도의 동기화 작업을 진행하지 않는 방법이다.
+
+## 활성화 Table 을 별도로 관리
+
+---
+Active Table 은 활성화된 서버 , 즉 헬스 체크 대상 서버 정보만을 관리하는 데이터베이스 Table 이다.
+
+현재 활성화된 서버만 저장되며 비활성화로 전환시 삭제된다.
+
+Active Table 에는 다음에 수행할 헬스 체크 시간을 저장하여 관리한다.
+
+- HealthTargetChecker 의 구현체인 LocalQueueHealthTargetChecker 를
+    ActiveTable 에서 헬스 체크를 수행해야하는 서버 정보를 가져와 HealthCheckRequester 를 호출하는  ActiveTableHealthTargetChecker 로 변경한다.
+
+- HealthTargetImporter 의 구현체인 DefaultHealthTargetImporter 를
+  ActiveTable 에서 헬스 체크를 수행해야하는 서버 정보를 가져오는 ActiveTableHealthTargetImporter 로 변경한다.
+
+
+
+<img src="docs/active.png" width="700">
+
+<img src="docs/table.png" width="700">
+
+
+
+
+## 개선점
+
+---
+두 번째 방법은 (비동기 호출 + 동기화 시간)이 총 걸리는 시간이 었지만 세 번째 방법은 비동기 호출만이 걸리는 총 시간이다. \
+다만 트랜잭션에서 ActiveServer Table 을 동기화하는 로직이 추가된다. \
+또한 현재 시간에 헬스 체크를 수행해야할 서버 정보만을 가져오기 때문에 메모리 문제에서 벗어날 수 있다.
+
+
+## 개선할 수 있는 점
+
+---
+
+- RestTemplate 는 동기 , blocking 방식으로 동작한다. WebClient 도입으로 개선해보자. \
+- Server 정보를 조회해오는 것을 캐싱해보자.
+
+

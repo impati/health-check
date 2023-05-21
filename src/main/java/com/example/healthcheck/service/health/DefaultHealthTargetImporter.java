@@ -22,7 +22,7 @@ public class DefaultHealthTargetImporter implements HealthTargetImporter{
     private final HealthRecordRepository healthRecordRepository;
 
     @Override
-    public List<HealthCheckServer> importTarget() {
+    public List<HealthCheckServer> importTarget(long time) {
         List<HealthCheckServer> result = new ArrayList<>();
         List<Server> activeServer = serverRepository.findActiveServer();
         LocalDateTime afterTime = now().minusDays(1);

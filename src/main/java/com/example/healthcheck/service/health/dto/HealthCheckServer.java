@@ -23,6 +23,10 @@ public class HealthCheckServer implements Comparable<HealthCheckServer>{
         return new HealthCheckServer(server.getId(), computeNextCheckTime(lastCheckTime,server.getInterval()), server.getInterval());
     }
 
+    public static HealthCheckServer of(Server server, long targetTime){
+        return new HealthCheckServer(server.getId(), targetTime, server.getInterval());
+    }
+
     public static HealthCheckServer from(HealthRecord healthRecord){
         Server server = healthRecord.getServer();
         return new HealthCheckServer(server.getId(),computeNextCheckTime(healthRecord.getCreatedAt() ,server.getInterval()),server.getInterval());

@@ -61,7 +61,7 @@ class DefaultHealthTargetImporterTest {
         HealthRecord lastRecordOfSecondTestServer = healthRecordSteps.create(secondTestServer);
 
         // when
-        List<HealthCheckServer> healthCheckServers = healthTargetImporter.importTarget();
+        List<HealthCheckServer> healthCheckServers = healthTargetImporter.importTarget(10);
 
         // then
         assertThat(healthCheckServers.size()).isEqualTo(3);
@@ -85,7 +85,7 @@ class DefaultHealthTargetImporterTest {
         // when
         long beforeTime = currentTimeMillis();
 
-        healthTargetImporter.importTarget();
+        healthTargetImporter.importTarget(10);
 
         long diffTime = currentTimeMillis() - beforeTime;
 
@@ -107,7 +107,7 @@ class DefaultHealthTargetImporterTest {
 
         HealthTargetImporter advanced = new HealthTargetImporter() {
             @Override
-            public List<HealthCheckServer> importTarget() {
+            public List<HealthCheckServer> importTarget(long time) {
                 List<HealthCheckServer> result = new ArrayList<>();
                 List<Server> activeServer = serverRepository.findActiveServer();
                 for(var server : activeServer){
@@ -130,7 +130,7 @@ class DefaultHealthTargetImporterTest {
         // when
         long beforeTime = currentTimeMillis();
 
-        advanced.importTarget();
+        advanced.importTarget(10);
 
         long diffTime = currentTimeMillis() - beforeTime;
 

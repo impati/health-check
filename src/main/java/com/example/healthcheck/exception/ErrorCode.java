@@ -14,7 +14,8 @@ public enum ErrorCode {
     SERVER_MISMATCH(HttpStatus.BAD_REQUEST,"입력한 서버 정보가 올바르지 않습니다."),
     UNSUPPORTED_ALARM_TYPE(HttpStatus.BAD_REQUEST,"지원하지 않는 알람입니다."),
     SEND_MAIL_FAIL(HttpStatus.INTERNAL_SERVER_ERROR,"메일을 보내는데 실패했습니다."),
-    FILL_MAIL_FAIL(HttpStatus.INTERNAL_SERVER_ERROR,"메시지를 작성하는데 실패했습니다.")
+    FILL_MAIL_FAIL(HttpStatus.INTERNAL_SERVER_ERROR,"메시지를 작성하는데 실패했습니다."),
+    NOT_ACTIVE_SERVER(HttpStatus.NOT_FOUND,"활성화 된 서버가 아닙니다.")
     ;
     private final HttpStatus status;
     private final String message;

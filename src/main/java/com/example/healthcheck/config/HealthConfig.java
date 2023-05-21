@@ -1,7 +1,6 @@
 package com.example.healthcheck.config;
 
 import com.example.healthcheck.repository.health.HealthRecordRepository;
-import com.example.healthcheck.repository.server.ServerRepository;
 import com.example.healthcheck.service.health.*;
 import lombok.RequiredArgsConstructor;
 import org.springframework.context.annotation.Bean;
@@ -12,28 +11,26 @@ import org.springframework.context.annotation.Configuration;
 @RequiredArgsConstructor
 public class HealthConfig {
 
-    private final ServerRepository serverRepository;
-    private final HealthRecordRepository healthRecordRepository;
-    private final HealthCheckManager healthCheckManager;
-
     @Bean
-    public HealthTimeChecker healthTimeChecker(){
-        return new HealthTimeChecker(healthTargetChecker());
+    public HealthTimeChecker healthTimeChecker(HealthTargetChecker healthTargetChecker){
+        return new HealthTimeChecker(healthTargetChecker);
     }
 
     @Bean
-    public HealthTargetChecker healthTargetChecker(){
-        return new LocalQueueHealthTargetChecker(healthCheckRequester(),healthTargetImporter());
+    public HealthTargetChecker healthTargetChecker(HealthCheckRequester healthCheckRequester , HealthTargetImporter targetImporter, HealthRecordRepository healthRecordRepository){
+        return new ActiveTableHealthTargetChecker(targetImporter,healthCheckRequester,healthRecordRepository);
     }
 
     @Bean
-    public HealthCheckRequester healthCheckRequester(){
+    public HealthCheckRequester healthCheckRequester(HealthCheckManager healthCheckManager){
         return new AsyncInnerHealthCheckRequester(healthCheckManager);
     }
 
     @Bean
-    public HealthTargetImporter healthTargetImporter(){
-        return new DefaultHealthTargetImporter(serverRepository,healthRecordRepository);
+    public HealthTargetImporter healthTargetImporter(ActiveTableManager activeTableManager){
+        return new ActiveTableHealthTargetImporter(activeTableManager);
     }
+
+
 
 }

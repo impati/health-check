@@ -16,11 +16,13 @@ import org.springframework.transaction.annotation.Transactional;
 public class DefaultHealthCheckSuccessManager implements HealthCheckSuccessManager {
 
     private final HealthRecordRepository healthRecordRepository;
+    private final ActiveTableManager activeTableManager;
 
     public void process(Server server){
         healthRecordRepository.save(HealthRecord.builder()
                 .healthStatus(HealthStatus.SUCCESS)
                 .server(server)
                 .build());
+        activeTableManager.updateTargetTime(server);
     }
 }
