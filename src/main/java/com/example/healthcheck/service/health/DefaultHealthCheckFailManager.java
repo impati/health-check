@@ -28,10 +28,12 @@ public class DefaultHealthCheckFailManager implements  HealthCheckFailManager{
     private final AlarmRecordRepository alarmRecordRepository;
     private final HealthRecordRepository healthRecordRepository;
     private final ServerStatusManager serverStatusManager;
+    private final ActiveTableManager activeTableManager;
 
     public void process(Server server) {
         if(isDeActivate(server)) serverStatusManager.deactivate(server);
         saveHealRecord(server);
+        activeTableManager.updateTargetTime(server);
         alarmSender.send(server,server.getEmail());
         saveAlarmRecord(server);
     }

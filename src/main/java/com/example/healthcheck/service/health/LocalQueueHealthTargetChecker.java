@@ -12,7 +12,7 @@ import static java.time.LocalDateTime.now;
 @Slf4j
 @RequiredArgsConstructor
 public class LocalQueueHealthTargetChecker implements HealthTargetChecker {
-    private final static int SYNCHRONIZATION_TIME = 3;
+    private final static int SYNCHRONIZATION_TIME = 30;
     private final HealthCheckRequester healthCheckRequester;
     private final HealthTargetImporter healthTargetImporter;
     private CheckQueue queue;
@@ -35,7 +35,7 @@ public class LocalQueueHealthTargetChecker implements HealthTargetChecker {
     }
 
     private void initialize(){
-        queue = new CheckQueue(healthTargetImporter.importTarget());
+        queue = new CheckQueue(healthTargetImporter.importTarget(convertToLong(now())));
     }
 
     private boolean isTimeToSync(){
@@ -46,7 +46,7 @@ public class LocalQueueHealthTargetChecker implements HealthTargetChecker {
 
     private void synchronize() {
         queue.clear();
-        queue = new CheckQueue(healthTargetImporter.importTarget());
+        queue = new CheckQueue(healthTargetImporter.importTarget(convertToLong(now())));
     }
 
 }

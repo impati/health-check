@@ -4,11 +4,15 @@ import com.example.healthcheck.entity.server.Server;
 import com.example.healthcheck.exception.ErrorCode;
 import com.example.healthcheck.exception.HealthCheckException;
 import com.example.healthcheck.service.common.EntityFinder;
+import com.example.healthcheck.service.health.ActiveTableManager;
 import com.example.healthcheck.service.server.dto.ServerDto;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
+
+import static com.example.healthcheck.util.TimeConverter.convertToLong;
+import static java.time.LocalDateTime.now;
 
 @Slf4j
 @Service
@@ -16,10 +20,12 @@ import org.springframework.transaction.annotation.Transactional;
 public class ServerStatusManager {
 
     private final EntityFinder entityFinder;
+    private final ActiveTableManager activeTableManager;
 
     @Transactional
     public void deactivate(Server server){
         server.deactivate();
+        activeTableManager.delete(server);
     }
 
     @Transactional
@@ -32,6 +38,7 @@ public class ServerStatusManager {
     public void activate(ServerDto serverDto,String email){
         Server server = getServer(serverDto.serverId(),serverDto.serverName(),email);
         server.activate();
+        activeTableManager.insert(server, convertToLong(now()));
     }
 
     private Server getServer(Long serverId ,String serverName, String email){

@@ -17,7 +17,6 @@ public class HealthCheckManager {
     private final HealthCheckFailManager healthCheckFailManager;
     private final HealthCheckSuccessManager healthCheckSuccessManager;
     private final EntityFinder entityFinder;
-
     public void check(Long serverId){
         Server server = entityFinder.findOrElseThrow(serverId, Server.class);
         if(!server.isActive()) return;
