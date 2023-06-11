@@ -19,7 +19,7 @@
 
 --- 
 
-개요 : 동기 호출 , 로컬 캐싱 , 큐 초기화를 통한 동기 화
+개요 : 동기 호출 , 로컬 캐싱 , 큐 초기화를 통한 동기화
 
 - 활성화 서버를 로컬 우선순위 큐로 삽입합니다.
 - **1 분마다** 우선순위 큐를 검사하여 헬스 체크를 수행합니다.
@@ -78,7 +78,6 @@
 - HealthTargetImporter: 활성화된 서버  정보를 가져오는 역할을 가집니다.
 - HealthTargetChecker : 큐에 있는 헬스 체크 대상 서버를 체크하고  HealthCheckRequester 를 호출하는 역할을 가집니다.
 - HealthCheckRequester : 대상 서버에 헬스 기능을 호출하는 역할을 가집니다.
-- HealthCheckInitializer : 활성화된 서버를 우선순위 큐를 초기화하는 역할을 가집니다.
 - HealthCheckManager : 헬스 체크를 호출하고 성공과 실패 Manager 를 호출하는 역할을 가집니다.
 - HealthChecker : 헬스 체크하는 역할을 담당합니다.
 - HealthCheckSuccessManager : 헬스 체크가 성공했을 때 성공 레코드를 저장하는 역할을 가집니다.
@@ -116,23 +115,27 @@
 # 두 번째 방법
 
 ---
-첫 번째 방법의 HealthCheckRequester 를 동기에서 비동기로 구현하는 것이다.
+첫 번째 방법의 HealthCheckRequester 를 동기에서 비동기로 구현하는 것입니다.
 
 ## 첫 번째 방법의 문제점
 
 --- 
 첫 번째 방법에서 한 번에 체크해야 할 대상 서버가 N 개일 경우 모두 동기 호출을 진행하기 때문에 M1 MAC PRO 기준으로 N = 10_000일 때 평균 9.1초,
-N = 100_000일 때 98초가 걸렸다. 로컬 캐싱을 사용하면서 1분 단위로 검사를 진행하기 때문에 검사 시간이 60초를 넘어가는 경우 데이터 정합성의 문제가 발생하여
+N = 100_000일 때 98초가 걸렸습니다.
+
+로컬 캐싱을 사용하면서 1분 단위로 검사를 진행하기 때문에 검사 시간이 60초를 넘어가는 경우 데이터 정합성의 문제가 발생하여
 헬스 체크를 받아야 할 서버가 영원히 받지 못하는 starvation 상황이 발생할 수 있다.
 
 
 ## 비동기로 전환
 
 --- 
-HealthCheckRequester 가 호출하는 HealthCheckManager 의 경우 반환타입이 void 이다.
-즉 HealthCheckRequester 가 호출하고나서 응답을 받고 활용하지 않기 때문에 동기로 동작할 필요가 없다.
+HealthCheckRequester 가 호출하는 HealthCheckManager 의 경우 반환타입이 void 입니다.
+
+즉 HealthCheckRequester 가 호출하고나서 응답을 받고 활용하지 않기 때문에 동기로 동작할 필요가 없습니다.
+
 HealthCheckManager 을 비동기로 호출하는 AsyncInnerHealthCheckRequester 를 구현하고  HealthCheckRequester 구현체를
-SynchronousInnerHealCheckRequester 에서 AsyncInnerHealthCheckRequester 로 변경한다.
+SynchronousInnerHealCheckRequester 에서 AsyncInnerHealthCheckRequester 로 변경합니다.
 
 <img src="docs/async.png" width="700">
 
@@ -187,7 +190,7 @@ Active Table 에는 다음에 수행할 헬스 체크 시간을 저장하여 관
 
 ---
 두 번째 방법은 (비동기 호출 + 동기화 시간)이 총 걸리는 시간이 었지만 세 번째 방법은 비동기 호출만이 걸리는 총 시간이다. \
-다만 트랜잭션에서 ActiveServer Table 을 동기화하는 로직이 추가된다. \
+다만 트랜잭션에서 ActiveServer Table 을 동기화하는 로직 및 시간이 추가된다. \
 또한 현재 시간에 헬스 체크를 수행해야할 서버 정보만을 가져오기 때문에 메모리 문제에서 벗어날 수 있다.
 
 
@@ -195,7 +198,7 @@ Active Table 에는 다음에 수행할 헬스 체크 시간을 저장하여 관
 
 ---
 
-- RestTemplate 는 동기 , blocking 방식으로 동작한다. WebClient 도입으로 개선해보자. \
-- Server 정보를 조회해오는 것을 캐싱해보자.
+- RestTemplate 는 동기 , blocking 방식으로 동작한다. WebClient 도입으로 개선
+- Server 정보를 조회해오는 것을 캐싱
 
 
