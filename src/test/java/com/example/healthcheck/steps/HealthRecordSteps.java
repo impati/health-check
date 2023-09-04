@@ -7,17 +7,16 @@ import com.example.healthcheck.repository.health.HealthRecordRepository;
 
 public class HealthRecordSteps {
 
-    private final HealthRecordRepository healthRecordRepository;
+	private final HealthRecordRepository healthRecordRepository;
 
-    public HealthRecordSteps(HealthRecordRepository healthRecordRepository) {
-        this.healthRecordRepository = healthRecordRepository;
-    }
+	public HealthRecordSteps(final HealthRecordRepository healthRecordRepository) {
+		this.healthRecordRepository = healthRecordRepository;
+	}
 
-
-    public HealthRecord create(Server server){
-        return healthRecordRepository.save(HealthRecord.builder()
-                .server(server)
-                .healthStatus(HealthStatus.SUCCESS)
-                .build());
-    }
+	public HealthRecord create(final Server server) {
+		return healthRecordRepository.save(HealthRecord.builder()
+			.server(server)
+			.healthStatus(HealthStatus.SUCCESS)
+			.build());
+	}
 }

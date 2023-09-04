@@ -1,30 +1,32 @@
 package com.example.healthcheck.service.common;
 
-import com.example.healthcheck.entity.server.Server;
-import org.assertj.core.api.Assertions;
+import static com.example.healthcheck.steps.ServerSteps.*;
+import static org.assertj.core.api.Assertions.*;
+
 import org.junit.jupiter.api.DisplayName;
 import org.junit.jupiter.api.Test;
 
-import static com.example.healthcheck.steps.ServerSteps.createStubServerWithDefaults;
+import com.example.healthcheck.entity.server.Server;
 
 class DefaultEntityFinderTest {
 
-    @Test
-    @DisplayName("EntityFinder 의 findOrElseThrow 테스트")
-    public void findOrElseThrow() throws Exception{
+	@Test
+	@DisplayName("EntityFinder 의 findOrElseThrow 테스트")
+	void findOrElseThrow() {
+		assertThatCode(() -> findOrElseThrow(2L, Server.class))
+			.doesNotThrowAnyException();
+	}
 
-        Assertions.assertThatCode(() -> findOrElseThrow(2L, Server.class))
-                .doesNotThrowAnyException();
-    }
+	@SuppressWarnings("unchecked")
+	private <T> T findOrElseThrow(final Long id, final Class<T> clazz) {
+		return (T)find(id, clazz);
+	}
 
-    @SuppressWarnings("unchecked")
-    private <T> T findOrElseThrow(Long id, Class<T> clazz) {
-        return (T)find(id,clazz);
-    }
+	private <T> Object find(final Long id, final Class<T> clazz) {
+		if (clazz.isAssignableFrom(Server.class)) {
+			return createStubServerWithDefaults();
+		}
 
-    private <T> Object find(Long id, Class<T> clazz){
-        if(clazz.isAssignableFrom(Server.class)) return createStubServerWithDefaults();
-        throw new IllegalStateException("지원하지 않는 클래스 타입입니다.");
-    }
-
+		throw new IllegalStateException("지원하지 않는 클래스 타입입니다.");
+	}
 }

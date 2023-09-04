@@ -6,6 +6,8 @@ import lombok.Getter;
 @Getter
 @AllArgsConstructor
 public enum HealthStatus {
-    SUCCESS("success") , FAIL("fail");
+
+    SUCCESS("success"), FAIL("fail");
+
     private final String text;
 }

@@ -1,11 +1,12 @@
 package com.example.healthcheck.repository.health;
 
-import com.example.healthcheck.config.JpaConfig;
-import com.example.healthcheck.entity.health.HealthRecord;
-import com.example.healthcheck.entity.server.Server;
-import com.example.healthcheck.repository.server.ServerRepository;
-import com.example.healthcheck.steps.HealthRecordSteps;
-import com.example.healthcheck.steps.ServerSteps;
+import static java.time.LocalDateTime.*;
+import static org.assertj.core.api.Assertions.*;
+
+import java.time.LocalDateTime;
+import java.util.List;
+import java.util.Optional;
+
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.DisplayName;
 import org.junit.jupiter.api.Test;
@@ -13,101 +14,99 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.test.autoconfigure.orm.jpa.DataJpaTest;
 import org.springframework.context.annotation.Import;
 
-import java.time.LocalDateTime;
-import java.util.List;
-import java.util.Optional;
-
-import static java.time.LocalDateTime.now;
-import static org.assertj.core.api.Assertions.assertThat;
+import com.example.healthcheck.config.JpaConfig;
+import com.example.healthcheck.entity.health.HealthRecord;
+import com.example.healthcheck.entity.server.Server;
+import com.example.healthcheck.repository.server.ServerRepository;
+import com.example.healthcheck.steps.HealthRecordSteps;
+import com.example.healthcheck.steps.ServerSteps;
 
 @DataJpaTest
 @Import(JpaConfig.class)
 class HealthRecordRepositoryTest {
 
-    @Autowired
-    private HealthRecordRepository healthRecordRepository;
+	@Autowired
+	private HealthRecordRepository healthRecordRepository;
 
-    @Autowired
-    private ServerRepository serverRepository;
+	@Autowired
+	private ServerRepository serverRepository;
 
-    private HealthRecordSteps healthRecordSteps;
+	private HealthRecordSteps healthRecordSteps;
 
-    private ServerSteps serverSteps;
+	private ServerSteps serverSteps;
 
-    @BeforeEach
-    void setup(){
-        healthRecordSteps = new HealthRecordSteps(healthRecordRepository);
-        serverSteps = new ServerSteps(serverRepository);
-    }
+	@BeforeEach
+	void setup() {
+		healthRecordSteps = new HealthRecordSteps(healthRecordRepository);
+		serverSteps = new ServerSteps(serverRepository);
+	}
 
-    @Test
-    @DisplayName("서버에 대해 가장 최근에 실시한 헬스 체크 가져오기")
-    public void findTopByServerOrderByCreatedAtDescTest() throws Exception{
-        // given
-        Server server = serverSteps.createDefault();
+	@Test
+	@DisplayName("서버에 대해 가장 최근에 실시한 헬스 체크 가져오기")
+	void findTopByServerOrderByCreatedAtDescTest() throws Exception {
+		// given
+		final Server server = serverSteps.createDefault();
 
-        HealthRecord firstRecord = healthRecordSteps.create(server);
-        Thread.sleep(100);
-        HealthRecord midRecord = healthRecordSteps.create(server);
-        Thread.sleep(100);
-        HealthRecord lastRecord = healthRecordSteps.create(server);
+		final HealthRecord firstRecord = healthRecordSteps.create(server);
+		Thread.sleep(100);
+		final HealthRecord midRecord = healthRecordSteps.create(server);
+		Thread.sleep(100);
+		final HealthRecord lastRecord = healthRecordSteps.create(server);
 
-        // when
-        Optional<HealthRecord> response = healthRecordRepository.findTopByServerOrderByCreatedAtDesc(server);
+		// when
+		final Optional<HealthRecord> response = healthRecordRepository.findTopByServerOrderByCreatedAtDesc(server);
 
-        // then
-        assertThat(response).isPresent();
-        assertThat(response.get().getId()).isEqualTo(lastRecord.getId());
+		// then
+		assertThat(response).isPresent();
+		assertThat(response.get().getId()).isEqualTo(lastRecord.getId());
+	}
 
-    }
+	@Test
+	@DisplayName("여러 서버 중 특정 서버 대해 가장 최근에 실시한 헬스 체크 가져오기")
+	void findTopByServerOrderByCreatedAtDescWithManyServer() {
+		// given
+		final Server server = serverSteps.createDefault();
+		final Server other = serverSteps.createDefault();
+		healthRecordSteps.create(server);
+		HealthRecord lastRecord = healthRecordSteps.create(server);
+		healthRecordSteps.create(other);
 
-    @Test
-    @DisplayName("여러 서버 중 특정 서버 대해 가장 최근에 실시한 헬스 체크 가져오기")
-    public void findTopByServerOrderByCreatedAtDescWithManyServer() throws Exception{
-        // given
-        Server server = serverSteps.createDefault();
-        Server other = serverSteps.createDefault();
-        healthRecordSteps.create(server);
-        HealthRecord lastRecord = healthRecordSteps.create(server);
-        healthRecordSteps.create(other);
+		// when
+		final Optional<HealthRecord> response = healthRecordRepository.findTopByServerOrderByCreatedAtDesc(server);
 
-        // when
-        Optional<HealthRecord> response = healthRecordRepository.findTopByServerOrderByCreatedAtDesc(server);
+		// then
+		assertThat(response).isPresent();
+		assertThat(response.get().getId()).isEqualTo(lastRecord.getId());
+	}
 
-        // then
-        assertThat(response).isPresent();
-        assertThat(response.get().getId()).isEqualTo(lastRecord.getId());
+	@Test
+	@DisplayName("활성화된 서버의 최신 Health 레코드 가져오기")
+	void findDistinctHealthRecordByActiveServiceTest() {
+		// given
+		final Server firstTestServer = serverSteps.create("[테스트 서버 1]", true);
+		final Server secondTestServer = serverSteps.create("[테스트 서버 2]", true);
+		final Server thirdTestServer = serverSteps.create("[테스트 서버 3]", true);
 
-    }
+		final HealthRecord firstRecordOfFirstTestServer = healthRecordSteps.create(firstTestServer);
+		final HealthRecord lastRecordOfFirstTestServer = healthRecordSteps.create(firstTestServer);
 
-    @Test
-    @DisplayName("활성화된 서버의 최신 Health 레코드 가져오기")
-    public void findDistinctHealthRecordByActiveServiceTest() throws Exception{
-        // given
-        Server firstTestServer = serverSteps.create("[테스트 서버 1]", true);
-        Server secondTestServer = serverSteps.create("[테스트 서버 2]", true);
-        Server thirdTestServer = serverSteps.create("[테스트 서버 3]", true);
+		final HealthRecord firstRecordOfSecondTestServer = healthRecordSteps.create(secondTestServer);
+		final HealthRecord lastRecordOfSecondTestServer = healthRecordSteps.create(secondTestServer);
 
-        HealthRecord firstRecordOfFirstTestServer = healthRecordSteps.create(firstTestServer);
-        HealthRecord lastRecordOfFirstTestServer = healthRecordSteps.create(firstTestServer);
+		final List<Server> activeServer = List.of(firstTestServer, secondTestServer, thirdTestServer);
 
-        HealthRecord firstRecordOfSecondTestServer = healthRecordSteps.create(secondTestServer);
-        HealthRecord lastRecordOfSecondTestServer = healthRecordSteps.create(secondTestServer);
+		final LocalDateTime afterTime = now().minusDays(1);
 
-        List<Server> activeServer = List.of(firstTestServer, secondTestServer, thirdTestServer);
+		// when
+		final List<HealthRecord> result = healthRecordRepository.findLatestRecordOfActiveServer(
+			activeServer,
+			afterTime
+		);
 
-        LocalDateTime afterTime = now().minusDays(1);
-
-
-        // when
-        List<HealthRecord> result = healthRecordRepository.findLatestRecordOfActiveServer(activeServer,afterTime);
-
-        // then
-        assertThat(result.size()).isEqualTo(2);
-        assertThat(result).containsAnyOf(
-                lastRecordOfFirstTestServer,lastRecordOfSecondTestServer
-        );
-
-    }
-
+		// then
+		assertThat(result).hasSize(2);
+		assertThat(result).containsAnyOf(
+			lastRecordOfFirstTestServer, lastRecordOfSecondTestServer
+		);
+	}
 }
