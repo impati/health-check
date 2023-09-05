@@ -1,13 +1,21 @@
 package com.example.healthcheck.entity.health;
 
+import java.util.Objects;
+
 import com.example.healthcheck.entity.server.Server;
-import jakarta.persistence.*;
+
+import jakarta.persistence.Column;
+import jakarta.persistence.Entity;
+import jakarta.persistence.FetchType;
+import jakarta.persistence.GeneratedValue;
+import jakarta.persistence.GenerationType;
+import jakarta.persistence.Id;
+import jakarta.persistence.JoinColumn;
+import jakarta.persistence.OneToOne;
 import lombok.AccessLevel;
 import lombok.Builder;
 import lombok.Getter;
 import lombok.NoArgsConstructor;
-
-import java.util.Objects;
 
 @Getter
 @Entity
@@ -19,7 +27,7 @@ public class ActiveServer {
     @Column(name = "active_server_id")
     private Long id;
 
-    @Column(nullable = false)
+    @Column(name = "target_time", nullable = false)
     private long targetTime; // 분 단위
 
     @OneToOne(fetch = FetchType.LAZY)
@@ -27,19 +35,24 @@ public class ActiveServer {
     private Server server;
 
     @Builder
-    public ActiveServer(long targetTime, Server server) {
+    public ActiveServer(final long targetTime, final Server server) {
         this.targetTime = targetTime;
         this.server = server;
     }
 
-    public void updateTargetTime(long time){
+    public void updateTargetTime(final long time) {
         targetTime += time;
     }
 
     @Override
-    public boolean equals(Object o) {
-        if (this == o) return true;
-        if (!(o instanceof ActiveServer that)) return false;
+    public boolean equals(final Object o) {
+        if (this == o) {
+            return true;
+        }
+        if (!(o instanceof ActiveServer that)) {
+            return false;
+        }
+
         return this.getId() != null && Objects.equals(id, that.id);
     }
 

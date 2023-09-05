@@ -1,53 +1,58 @@
 package com.example.healthcheck.service.health.dto;
 
+import static com.example.healthcheck.util.TimeConverter.*;
+import static java.time.LocalDateTime.*;
+
 import java.util.List;
 import java.util.PriorityQueue;
 
-import static com.example.healthcheck.util.TimeConverter.convertToLong;
-import static java.time.LocalDateTime.now;
-
 public class CheckQueue {
-    private PriorityQueue<HealthCheckServer> queue;
-    private long lastSynchronizationTime  = 0;
 
-    public CheckQueue(List<HealthCheckServer> healthCheckServers) {
-        this.lastSynchronizationTime = convertToLong(now());
-        this.queue = new PriorityQueue<>(healthCheckServers);
-    }
+	private final PriorityQueue<HealthCheckServer> queue;
+	private final long lastSynchronizationTime;
 
-    public long getLastSynchronizationTime(){
-        return lastSynchronizationTime;
-    }
+	public CheckQueue(final List<HealthCheckServer> healthCheckServers) {
+		this.lastSynchronizationTime = convertToLong(now());
+		this.queue = new PriorityQueue<>(healthCheckServers);
+	}
 
-    public int size() {return queue.size();}
+	public long getLastSynchronizationTime() {
+		return lastSynchronizationTime;
+	}
 
-    public boolean isNonEmpty(){
-        return !queue.isEmpty();
-    }
+	public int size() {
+		return queue.size();
+	}
 
-    public HealthCheckServer peek(){
-        if(isNonEmpty()){
-            return queue.peek();
-        }
-        return null;
-    }
+	public boolean isNonEmpty() {
+		return !queue.isEmpty();
+	}
 
-    public boolean isCheckTime(long currentTime){
-        return peek().getCheckTime() == currentTime;
-    }
+	public HealthCheckServer peek() {
+		if (isNonEmpty()) {
+			return queue.peek();
+		}
 
-    public HealthCheckServer poll(){
-        if(isNonEmpty()){
-            return queue.poll();
-        }
-        return null;
-    }
+		return null;
+	}
 
-    public void add(HealthCheckServer healthCheckServer){
-        queue.add(healthCheckServer);
-    }
+	public boolean isCheckTime(final long currentTime) {
+		return peek().getCheckTime() == currentTime;
+	}
 
-    public void clear(){
-        queue.clear();
-    }
+	public HealthCheckServer poll() {
+		if (isNonEmpty()) {
+			return queue.poll();
+		}
+
+		return null;
+	}
+
+	public void add(final HealthCheckServer healthCheckServer) {
+		queue.add(healthCheckServer);
+	}
+
+	public void clear() {
+		queue.clear();
+	}
 }

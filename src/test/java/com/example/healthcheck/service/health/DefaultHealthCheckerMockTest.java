@@ -1,10 +1,10 @@
 package com.example.healthcheck.service.health;
 
-import com.example.healthcheck.entity.server.Server;
-import com.example.healthcheck.exception.HealthCheckException;
-import okhttp3.mockwebserver.MockResponse;
-import okhttp3.mockwebserver.MockWebServer;
-import org.assertj.core.api.Assertions;
+import static com.example.healthcheck.steps.ServerSteps.*;
+import static org.assertj.core.api.Assertions.*;
+
+import java.io.IOException;
+
 import org.junit.jupiter.api.AfterEach;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.DisplayName;
@@ -15,99 +15,90 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.test.context.SpringBootTest;
 import org.springframework.web.client.RestTemplate;
 
-import java.io.IOException;
+import com.example.healthcheck.entity.server.Server;
+import com.example.healthcheck.exception.HealthCheckException;
 
-import static com.example.healthcheck.steps.ServerSteps.createStubServerWithHost;
+import okhttp3.mockwebserver.MockResponse;
+import okhttp3.mockwebserver.MockWebServer;
 
 @SpringBootTest
 @ExtendWith(MockitoExtension.class)
 class DefaultHealthCheckerMockTest {
 
-    @Autowired
-    private HealthChecker defaultHealthChecker;
+	@Autowired
+	private HealthChecker defaultHealthChecker;
 
-    @Autowired
-    private RestTemplate restTemplate;
+	@Autowired
+	private RestTemplate restTemplate;
 
-    private MockWebServer mockWebServer;
+	private MockWebServer mockWebServer;
 
+	@BeforeEach
+	void setup() throws IOException {
+		mockWebServer = new MockWebServer();
+		mockWebServer.start();
+	}
 
+	@AfterEach
+	void cleanup() throws IOException {
+		mockWebServer.shutdown();
+	}
 
-    @BeforeEach
-    void setup() throws IOException {
-        mockWebServer = new MockWebServer();
-        mockWebServer.start();
-    }
+	@Test
+	@DisplayName("health check mockWebServer 성공 테스트")
+	void health_check_mockWebServer_SUCCESS() {
+		// given
+		final String baseUrl = mockWebServer.url("/").toString();
+		final Server server = createStubServerWithHost(baseUrl);
 
-    @AfterEach
-    void cleanup() throws IOException {
-        mockWebServer.shutdown();
-    }
+		// when
+		mockWebServer.enqueue(new MockResponse()
+			.setBody("ok")
+			.setResponseCode(200));
 
+		// then
+		assertThatCode(() -> defaultHealthChecker.check(server)).doesNotThrowAnyException();
+	}
 
-    @Test
-    @DisplayName("health check mockWebServer 성공 테스트")
-    public void health_check_mockWebServer_SUCCESS() throws Exception{
-        // given
-        String baseUrl = mockWebServer.url("/").toString();
+	@Test
+	@DisplayName("3번의 시도 중 마지막에 성공")
+	void health_check_mockWebServer_SUCCESS_LAST() {
+		// given
+		final String baseUrl = mockWebServer.url("/").toString();
+		final Server server = createStubServerWithHost(baseUrl);
 
-        Server server = createStubServerWithHost(baseUrl);
+		// when
+		mockWebServer.enqueue(new MockResponse()
+			.setResponseCode(400));
 
-        // when
-        mockWebServer.enqueue(new MockResponse()
-                .setBody("ok")
-                .setResponseCode(200));
+		mockWebServer.enqueue(new MockResponse()
+			.setResponseCode(500));
 
-        // then
-        Assertions.assertThatCode(() -> defaultHealthChecker.check(server))
-                .doesNotThrowAnyException();
-    }
+		mockWebServer.enqueue(new MockResponse()
+			.setResponseCode(200));
 
-    @Test
-    @DisplayName("3번의 시도 중 마지막에 성공")
-    public void health_check_mockWebServer_SUCCESS_LAST() throws Exception{
-        // given
-        String baseUrl = mockWebServer.url("/").toString();
+		// then
+		assertThatCode(() -> defaultHealthChecker.check(server)).doesNotThrowAnyException();
+	}
 
-        Server server = createStubServerWithHost(baseUrl);
+	@Test
+	@DisplayName("3번의 시도 모두 실패")
+	void health_check_mockWebServer_FAIL() {
+		// given
+		final String baseUrl = mockWebServer.url("/").toString();
+		final Server server = createStubServerWithHost(baseUrl);
 
-        // when
-        mockWebServer.enqueue(new MockResponse()
-                .setResponseCode(400));
+		// when
+		mockWebServer.enqueue(new MockResponse()
+			.setResponseCode(400));
 
-        mockWebServer.enqueue(new MockResponse()
-                .setResponseCode(500));
+		mockWebServer.enqueue(new MockResponse()
+			.setResponseCode(500));
 
-        mockWebServer.enqueue(new MockResponse()
-                .setResponseCode(200));
+		mockWebServer.enqueue(new MockResponse()
+			.setResponseCode(500));
 
-        // then
-        Assertions.assertThatCode(() -> defaultHealthChecker.check(server))
-                .doesNotThrowAnyException();
-    }
-
-    @Test
-    @DisplayName("3번의 시도 모두 실패")
-    public void health_check_mockWebServer_FAIL() throws Exception{
-        // given
-        String baseUrl = mockWebServer.url("/").toString();
-
-        Server server = createStubServerWithHost(baseUrl);
-
-        // when
-        mockWebServer.enqueue(new MockResponse()
-                .setResponseCode(400));
-
-        mockWebServer.enqueue(new MockResponse()
-                .setResponseCode(500));
-
-        mockWebServer.enqueue(new MockResponse()
-                .setResponseCode(500));
-
-        // then
-        Assertions.assertThatCode(() -> defaultHealthChecker.check(server))
-                .isInstanceOf(HealthCheckException.class);
-    }
-
-
+		// then
+		assertThatCode(() -> defaultHealthChecker.check(server)).isInstanceOf(HealthCheckException.class);
+	}
 }
