@@ -4,30 +4,35 @@ import static org.assertj.core.api.Assertions.*;
 
 import java.util.List;
 
+import org.junit.jupiter.api.AfterEach;
 import org.junit.jupiter.api.DisplayName;
 import org.junit.jupiter.api.Test;
 import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.boot.test.autoconfigure.orm.jpa.DataJpaTest;
-import org.springframework.context.annotation.Import;
+import org.springframework.boot.test.context.SpringBootTest;
+import org.springframework.transaction.annotation.Transactional;
 import org.springframework.util.LinkedMultiValueMap;
 import org.springframework.util.MultiValueMap;
 
-import com.example.healthcheck.config.JpaConfig;
 import com.example.healthcheck.entity.server.EndPointHttpMethod;
 import com.example.healthcheck.entity.server.QueryParam;
 import com.example.healthcheck.entity.server.Server;
 import com.example.healthcheck.repository.server.ServerRepository;
 import com.example.healthcheck.service.server.dto.ServerRegistrationDto;
 
-@DataJpaTest
-@Import({ServerRegister.class, JpaConfig.class})
+@SpringBootTest
+@Transactional
 class ServerRegisterTest {
 
 	@Autowired
 	private ServerRegister serverRegister;
-	
+
 	@Autowired
 	private ServerRepository serverRepository;
+
+	@AfterEach
+	void tearDown() {
+		serverRepository.deleteAll();
+	}
 
 	@Test
 	@DisplayName("헬스체크할 서버 정보를 등록")
@@ -83,11 +88,12 @@ class ServerRegisterTest {
 		assertThat(server.getEmail()).isEqualTo(email);
 		assertThat(server.getInterval()).isEqualTo(interval);
 		assertThat(server.getMethod()).isEqualTo(EndPointHttpMethod.GET);
-		assertThat(server.getQueryParams().size()).isEqualTo(1);
+		assertThat(server.getQueryParams()).hasSize(1);
 	}
 
 	@Test
 	@DisplayName("헬스체크할 서버 정보를 등록 - queryParam 포함")
+	@Transactional
 	void serverRegister_registerTestWithQueryParamTwo() {
 		// given
 		final String serverName = "서비스 허브";
@@ -114,7 +120,7 @@ class ServerRegisterTest {
 		assertThat(server.getEmail()).isEqualTo(email);
 		assertThat(server.getInterval()).isEqualTo(interval);
 		assertThat(server.getMethod()).isEqualTo(EndPointHttpMethod.GET);
-		assertThat(server.getQueryParams().size()).isEqualTo(3);
+		assertThat(server.getQueryParams()).hasSize(3);
 		assertThat(server.getQueryParams().stream().map(QueryParam::getValue)).containsAnyOf(
 			"123", "456", "aaa"
 		);

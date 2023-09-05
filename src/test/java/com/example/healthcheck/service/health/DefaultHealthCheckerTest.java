@@ -2,28 +2,22 @@ package com.example.healthcheck.service.health;
 
 import static org.assertj.core.api.Assertions.*;
 
+import org.junit.jupiter.api.AfterEach;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.DisplayName;
 import org.junit.jupiter.api.Test;
 import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.boot.test.autoconfigure.orm.jpa.DataJpaTest;
-import org.springframework.context.annotation.Import;
-import org.springframework.web.client.RestTemplate;
+import org.springframework.boot.test.context.SpringBootTest;
+import org.springframework.transaction.annotation.Transactional;
 
-import com.example.healthcheck.config.JpaConfig;
-import com.example.healthcheck.config.RetryConfig;
 import com.example.healthcheck.entity.server.Server;
 import com.example.healthcheck.exception.HealthCheckException;
+import com.example.healthcheck.repository.health.ActiveServerRepository;
 import com.example.healthcheck.repository.server.ServerRepository;
 import com.example.healthcheck.steps.ServerSteps;
 
-@DataJpaTest
-@Import({
-	DefaultHealthChecker.class,
-	RestTemplate.class,
-	JpaConfig.class,
-	RetryConfig.class
-})
+@SpringBootTest
+@Transactional
 class DefaultHealthCheckerTest {
 
 	@Autowired
@@ -32,11 +26,20 @@ class DefaultHealthCheckerTest {
 	@Autowired
 	private ServerRepository serverRepository;
 
+	@Autowired
+	private ActiveServerRepository activeServerRepository;
+
 	private ServerSteps serverSteps;
 
 	@BeforeEach
 	void setup() {
 		serverSteps = new ServerSteps(serverRepository);
+	}
+
+	@AfterEach
+	void tearDown() {
+		activeServerRepository.deleteAll();
+		serverRepository.deleteAll();
 	}
 
 	@Test

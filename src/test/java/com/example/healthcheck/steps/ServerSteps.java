@@ -17,6 +17,7 @@ public class ServerSteps {
 
 	public static Server createStubServerWithDefaults() {
 		return createDefaultBuilder()
+			.active(true)
 			.build();
 	}
 

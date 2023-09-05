@@ -6,22 +6,22 @@ import static org.assertj.core.api.Assertions.*;
 
 import java.util.List;
 
+import org.junit.jupiter.api.AfterEach;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.DisplayName;
 import org.junit.jupiter.api.Test;
 import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.boot.test.autoconfigure.orm.jpa.DataJpaTest;
-import org.springframework.context.annotation.Import;
+import org.springframework.boot.test.context.SpringBootTest;
+import org.springframework.transaction.annotation.Transactional;
 
-import com.example.healthcheck.config.JpaConfig;
 import com.example.healthcheck.entity.health.ActiveServer;
 import com.example.healthcheck.entity.server.Server;
 import com.example.healthcheck.repository.health.ActiveServerRepository;
 import com.example.healthcheck.repository.server.ServerRepository;
 import com.example.healthcheck.steps.ServerSteps;
 
-@DataJpaTest
-@Import({JpaConfig.class, ActiveTableManager.class})
+@SpringBootTest
+@Transactional
 class ActiveTableManagerTest {
 
 	@Autowired
@@ -38,6 +38,12 @@ class ActiveTableManagerTest {
 	@BeforeEach
 	void setup() {
 		serverSteps = new ServerSteps(serverRepository);
+	}
+
+	@AfterEach
+	void tearDown() {
+		activeServerRepository.deleteAll();
+		serverRepository.deleteAll();
 	}
 
 	@Test

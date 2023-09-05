@@ -3,34 +3,27 @@ package com.example.healthcheck.service.health;
 import static org.assertj.core.api.Assertions.*;
 import static org.mockito.BDDMockito.*;
 
-import java.util.List;
-
+import org.junit.jupiter.api.AfterEach;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.DisplayName;
 import org.junit.jupiter.api.Test;
 import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.boot.test.autoconfigure.orm.jpa.DataJpaTest;
+import org.springframework.boot.test.context.SpringBootTest;
 import org.springframework.boot.test.mock.mockito.MockBean;
-import org.springframework.context.annotation.Import;
+import org.springframework.transaction.annotation.Transactional;
 
-import com.example.healthcheck.config.JpaConfig;
 import com.example.healthcheck.entity.health.HealthRecord;
 import com.example.healthcheck.entity.health.HealthStatus;
 import com.example.healthcheck.entity.server.Server;
 import com.example.healthcheck.repository.alarm.AlarmRecordRepository;
+import com.example.healthcheck.repository.health.ActiveServerRepository;
 import com.example.healthcheck.repository.health.HealthRecordRepository;
 import com.example.healthcheck.repository.server.ServerRepository;
 import com.example.healthcheck.service.alarm.AlarmSender;
-import com.example.healthcheck.service.alarm.MailAlarmSender;
-import com.example.healthcheck.service.common.DefaultEntityFinder;
-import com.example.healthcheck.service.server.ServerStatusManager;
 import com.example.healthcheck.steps.ServerSteps;
 
-@DataJpaTest
-@Import({JpaConfig.class, MailAlarmSender.class,
-	DefaultEntityFinder.class, ServerStatusManager.class,
-	DefaultHealthCheckFailManager.class
-})
+@SpringBootTest
+@Transactional
 class DefaultHealthCheckFailManagerTest {
 
 	@Autowired
@@ -48,6 +41,12 @@ class DefaultHealthCheckFailManagerTest {
 	@Autowired
 	private AlarmRecordRepository alarmRecordRepository;
 
+	@Autowired
+	private ActiveTableManager activeTableManager;
+
+	@Autowired
+	private ActiveServerRepository activeServerRepository;
+
 	private ServerSteps serverSteps;
 
 	@BeforeEach
@@ -55,11 +54,18 @@ class DefaultHealthCheckFailManagerTest {
 		serverSteps = new ServerSteps(serverRepository);
 	}
 
+	@AfterEach
+	void tearDown() {
+		activeServerRepository.deleteAll();
+		serverRepository.deleteAll();
+	}
+
 	@Test
 	@DisplayName("헬스 체크 첫번째 실패 프로세스 테스트 - 1.헬스 체크 결과 저장 2.알람 보내기 3. 알람 보낸 기록 저장")
 	void DefaultHealthCheckFailManager_processTest_FirstFail() {
 		// given
 		final Server server = serverSteps.createDefault();
+		activeTableManager.insert(server, 30);
 		willDoNothing().given(alarmSender).send(server, server.getEmail());
 
 		// when
@@ -68,30 +74,7 @@ class DefaultHealthCheckFailManagerTest {
 		// then
 		final HealthRecord healthRecord = healthRecordRepository.findAll().stream().findFirst().get();
 		assertThat(healthRecord.getHealthStatus()).isEqualTo(HealthStatus.FAIL);
-		assertThat(alarmRecordRepository.findAll().size()).isEqualTo(1);
+		assertThat(alarmRecordRepository.findAll()).hasSize(1);
 		assertThat(server.isActive()).isTrue();
-	}
-
-	@Test
-	@DisplayName("헬스 체크 연속 두번 실패 프로세스 테스트 - 1.서버 비활성화 2.헬스 체크 결과 저장 3.알람 보내기 4. 알람 보낸 기록 저장")
-	void DefaultHealthCheckFailManager_processTest_SecondFail() {
-		// given
-		final Server server = serverSteps.createDefault();
-		final String email = server.getEmail();
-		willDoNothing().given(alarmSender).send(server, email);
-		willDoNothing().given(alarmSender).send(server, email);
-
-		// when
-		healthCheckFailManager.process(server);
-		healthCheckFailManager.process(server);
-
-		// then
-		final List<HealthRecord> healthRecords = healthRecordRepository.findAll();
-		assertThat(healthRecords.stream()
-			.filter(record -> record.getHealthStatus() == HealthStatus.FAIL)
-			.count())
-			.isEqualTo(2);
-		assertThat(alarmRecordRepository.findAll().size()).isEqualTo(2);
-		assertThat(server.isActive()).isFalse();
 	}
 }

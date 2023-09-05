@@ -45,7 +45,7 @@ public class Server extends BaseTimeEntity {
 	@Column(name = "host", nullable = false)
 	private String host;
 
-	@Column(name = "path", nullable = false)
+	@Column(name = "path")
 	private String path;
 
 	@Column(name = "method", nullable = false)
