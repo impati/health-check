@@ -12,7 +12,7 @@ import lombok.extern.slf4j.Slf4j;
 @RequiredArgsConstructor
 public class HealthTimeChecker {
 
-	private static final int UNIT_TIME = 1000 * 60 * 30;
+	private static final int UNIT_TIME = 1000 * 60;
 
 	private final HealthTargetChecker healthTargetChecker;
 
