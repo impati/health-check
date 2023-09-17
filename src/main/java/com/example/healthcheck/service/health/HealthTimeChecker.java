@@ -4,11 +4,13 @@ import static com.example.healthcheck.util.TimeConverter.*;
 import static java.time.LocalDateTime.*;
 
 import org.springframework.scheduling.annotation.Scheduled;
+import org.springframework.stereotype.Component;
 
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 
 @Slf4j
+@Component
 @RequiredArgsConstructor
 public class HealthTimeChecker {
 
@@ -16,20 +18,8 @@ public class HealthTimeChecker {
 
 	private final HealthTargetChecker healthTargetChecker;
 
-	private long time;
-
 	@Scheduled(fixedRate = UNIT_TIME)
 	public void timeCheck() {
-		init();
-		timePass();
-		healthTargetChecker.checkForTarget(time);
-	}
-
-	private void init() {
-		time = convertToLong(now());
-	}
-
-	private void timePass() {
-		this.time += 1;
+		healthTargetChecker.checkForTarget(convertToLong(now()));
 	}
 }

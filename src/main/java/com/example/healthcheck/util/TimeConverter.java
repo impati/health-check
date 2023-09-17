@@ -12,14 +12,6 @@ public abstract class TimeConverter {
 	private TimeConverter() {
 	}
 
-	public static LocalDateTime getStartDate() {
-		return START;
-	}
-
-	public static long getStartMinutes() {
-		return convertToLong(START);
-	}
-
 	public static long convertToLong(final LocalDateTime dateTime) {
 		return between(START, dateTime).getSeconds() / UNIT;
 	}
